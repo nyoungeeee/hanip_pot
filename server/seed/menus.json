@@ -1,0 +1,80 @@
+{
+  "_comment": "공식 F&B 시드. 원본: docs/handoff/source-fnb/poster_1~4.png (2026 부산락페 공식 게시물 캡처). slug는 바꾸지 말 것(모집글 연결 키). 가격을 고치거나 메뉴를 추가한 뒤 서버를 재시작하면 반영된다. 목록에서 빠진 메뉴는 삭제하지 않고 숨김 처리된다.",
+  "source": "https://x.com/busan_rock/status/2104738321490678004",
+  "vendors": [
+    { "slug": "suan-coffee", "name": "수안커피", "zone": "부산 로컬푸드", "image": "suan-coffee.webp", "note": "총 메뉴 5종 중 3종만 확인",
+      "menus": [
+        { "slug": "suan-iced-coffee", "name": "아이스커피", "price": 4800 },
+        { "slug": "suan-iced-latte", "name": "아이스라떼", "price": 5500 },
+        { "slug": "suan-soft-icecream", "name": "소프트아이스크림", "price": 5500 }
+      ] },
+    { "slug": "lee-heungyong", "name": "이흥용과자점", "zone": "부산 로컬푸드", "image": "lee-heungyong.webp", "note": "총 메뉴 8종 중 3종만 확인",
+      "menus": [
+        { "slug": "lee-salt-bread", "name": "소금빵 2입", "price": 5000 },
+        { "slug": "lee-churros", "name": "츄러스 3입", "price": 6000 },
+        { "slug": "lee-choco-superstar", "name": "초코슈퍼스타 2입", "price": 5500 }
+      ] },
+    { "slug": "samjin", "name": "삼진어묵", "zone": "부산 로컬푸드", "image": "samjin.webp",
+      "menus": [
+        { "slug": "samjin-hansang", "name": "삼진어묵한상(삼진어묵탕+부산어묵떡볶이)", "price": 15000 },
+        { "slug": "samjin-eomuktang", "name": "삼진어묵탕", "price": 8500 },
+        { "slug": "samjin-tteokbokki", "name": "부산어묵떡볶이", "price": 8500 }
+      ] },
+    { "slug": "cheongcheon", "name": "청천돼지국밥", "zone": "부산 로컬푸드", "image": "cheongcheon.webp",
+      "menus": [ { "slug": "cheongcheon-gukbap", "name": "돼지국밥", "price": 9000 } ] },
+    { "slug": "jangho", "name": "장호밀면", "zone": "부산 로컬푸드", "image": "jangho.webp",
+      "menus": [
+        { "slug": "jangho-milmyeon", "name": "장호밀면", "price": 10000 },
+        { "slug": "jangho-mandu", "name": "왕만두", "price": 8000 }
+      ] },
+    { "slug": "dwaegalhu", "name": "돼갈후", "zone": "부산 로컬푸드", "image": "dwaegalhu.webp",
+      "menus": [ { "slug": "dwaegalhu-fried", "name": "돼지갈비후라이드", "price": 20000 } ] },
+    { "slug": "sasang-hanshin", "name": "사상 한신2차아파트 부녀회", "zone": "부산 로컬푸드", "image": "sasang-hanshin.webp",
+      "menus": [
+        { "slug": "sasang-buchujeon", "name": "부추전", "price": 8000 },
+        { "slug": "sasang-sogogi-gukbap", "name": "소고기국밥", "price": 9000 }
+      ] },
+    { "slug": "joy-chef", "name": "조이쉐프", "zone": "푸드라운지", "image": "joy-chef.webp",
+      "menus": [
+        { "slug": "joy-kimchi-guksu", "name": "김치말이국수", "price": 9000 },
+        { "slug": "joy-jeyuk-guksu", "name": "제육비빔국수", "price": 10000 }
+      ] },
+    { "slug": "jugahyang", "name": "주가향", "zone": "푸드라운지", "image": "jugahyang.webp",
+      "menus": [
+        { "slug": "jugahyang-mul-naengmyeon", "name": "물냉면", "price": 10000 },
+        { "slug": "jugahyang-mulbibim-naengmyeon", "name": "물비빔냉면", "price": 10000 },
+        { "slug": "jugahyang-bul-chobap", "name": "소고기불초밥", "price": 12000 }
+      ] },
+    { "slug": "namhae-sausage", "name": "남해독일마을 수제소시지", "zone": "푸드라운지", "image": "namhae-sausage.webp",
+      "menus": [
+        { "slug": "namhae-set-a", "name": "모듬소시지 A세트", "price": 20000 },
+        { "slug": "namhae-set-b", "name": "모듬소시지 B세트", "price": 25000 }
+      ] },
+    { "slug": "osaka-yaki", "name": "오사카야끼", "zone": "푸드라운지", "image": "osaka-yaki.webp",
+      "menus": [
+        { "slug": "osaka-yakisoba", "name": "야끼소바", "price": 15000 },
+        { "slug": "osaka-cube-steak", "name": "큐브스테이크", "price": 18000 }
+      ] },
+    { "slug": "hapsuhu", "name": "햅스후", "zone": "푸드라운지", "image": "hapsuhu.webp",
+      "menus": [
+        { "slug": "hapsuhu-takoyaki", "name": "타코야끼", "price": 7000 },
+        { "slug": "hapsuhu-okonomiyaki", "name": "오꼬노미야끼", "price": 13000 }
+      ] },
+    { "slug": "daum-cupbap", "name": "다옴컵밥", "zone": "푸드라운지", "image": "daum-cupbap.webp",
+      "menus": [
+        { "slug": "daum-spam-mayo", "name": "스팸마요컵밥", "price": 10500 },
+        { "slug": "daum-chicken-mayo", "name": "치킨마요컵밥", "price": 11000 },
+        { "slug": "daum-jeyuk-deopbap", "name": "철판제육덮밥", "price": 13000 }
+      ] },
+    { "slug": "musteat", "name": "머스트잇", "zone": "푸드라운지", "image": "musteat.webp",
+      "menus": [
+        { "slug": "musteat-samgyeopsal", "name": "잘익은삼겹살", "price": 18000 },
+        { "slug": "musteat-rice", "name": "공기밥", "price": 2000 }
+      ] },
+    { "slug": "pops-smoke-train", "name": "팝스스모크트레인", "zone": "푸드라운지", "image": "pops-smoke-train.webp",
+      "menus": [
+        { "slug": "pops-burrito", "name": "스모크 풀드포크 브리또", "price": 16000 },
+        { "slug": "pops-philly-taco", "name": "스모크 필리타코(3pcs)", "price": 13000 }
+      ] }
+  ]
+}

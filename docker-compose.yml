@@ -1,0 +1,48 @@
+# B201과 분리된 별도 Compose 프로젝트. 포트·볼륨·프로젝트 이름이 겹치지 않는지 배포 전 확인.
+name: hanippot
+
+services:
+  web-api:
+    build: .
+    image: hanippot:latest
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      NODE_ENV: production
+      DATA_DIR: /data
+      UPLOAD_DIR: /uploads
+      TZ: Asia/Seoul
+    volumes:
+      - hanippot-data:/data
+      - hanippot-uploads:/uploads
+    # 호스트 Nginx가 이 포트로 프록시. 외부에 직접 노출하지 않는다.
+    ports:
+      - "127.0.0.1:${HOST_PORT:-3210}:3000"
+    # SQLite 단일 writer 전제: 레플리카를 늘리지 말 것
+    deploy:
+      replicas: 1
+
+  backup:
+    image: hanippot:latest
+    restart: unless-stopped
+    depends_on:
+      web-api:
+        condition: service_healthy
+    healthcheck:
+      disable: true
+    command: ["node", "scripts/backup.js", "--loop"]
+    environment:
+      DATA_DIR: /data
+      UPLOAD_DIR: /uploads
+      BACKUP_DIR: /backups
+      BACKUP_KEEP: ${BACKUP_KEEP:-14}
+      BACKUP_INTERVAL_HOURS: ${BACKUP_INTERVAL_HOURS:-6}
+      TZ: Asia/Seoul
+    volumes:
+      - hanippot-data:/data
+      - hanippot-uploads:/uploads:ro
+      - ${BACKUP_HOST_DIR:-./backups}:/backups
+
+volumes:
+  hanippot-data:
+  hanippot-uploads:

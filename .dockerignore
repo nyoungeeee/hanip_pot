@@ -1,0 +1,9 @@
+**/node_modules
+**/dist
+**/dist-test
+server/.data
+server/.uploads
+backups
+docs
+.env
+*.zip
