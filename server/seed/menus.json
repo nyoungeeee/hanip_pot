@@ -1,80 +1,176 @@
 {
-  "_comment": "공식 F&B 시드. 원본: docs/handoff/source-fnb/poster_1~4.png (2026 부산락페 공식 게시물 캡처). slug는 바꾸지 말 것(모집글 연결 키). 가격을 고치거나 메뉴를 추가한 뒤 서버를 재시작하면 반영된다. 목록에서 빠진 메뉴는 삭제하지 않고 숨김 처리된다.",
+  "_comment": "공식 F&B 시드. 원본: 2026 부산락페 공식 F&B 게시물 캡처(부산 로컬푸드·푸드라운지·음료 협찬 포스터). 메뉴마다 사진이 따로 있으면 menus[].image에 seed/menu-images/ 파일명을 넣는다. slug는 바꾸지 말 것(모집글 연결 키). 가격을 고치거나 메뉴를 추가한 뒤 서버를 재시작하면 반영된다. 목록에서 빠진 메뉴는 삭제하지 않고 숨김 처리된다.",
   "source": "https://x.com/busan_rock/status/2104738321490678004",
   "vendors": [
     { "slug": "suan-coffee", "name": "수안커피", "zone": "부산 로컬푸드", "image": "suan-coffee.webp", "note": "총 메뉴 5종 중 3종만 확인",
       "menus": [
-        { "slug": "suan-iced-coffee", "name": "아이스커피", "price": 4800 },
-        { "slug": "suan-iced-latte", "name": "아이스라떼", "price": 5500 },
-        { "slug": "suan-soft-icecream", "name": "소프트아이스크림", "price": 5500 }
+        {"slug": "suan-iced-coffee", "name": "아이스커피", "price": 4800, "image": "suan-iced-coffee.webp"},
+        {"slug": "suan-iced-latte", "name": "아이스라떼", "price": 5500},
+        {"slug": "suan-soft-icecream", "name": "소프트아이스크림", "price": 5500, "image": "suan-soft-icecream.webp"}
       ] },
     { "slug": "lee-heungyong", "name": "이흥용과자점", "zone": "부산 로컬푸드", "image": "lee-heungyong.webp", "note": "총 메뉴 8종 중 3종만 확인",
       "menus": [
-        { "slug": "lee-salt-bread", "name": "소금빵 2입", "price": 5000 },
-        { "slug": "lee-churros", "name": "츄러스 3입", "price": 6000 },
-        { "slug": "lee-choco-superstar", "name": "초코슈퍼스타 2입", "price": 5500 }
+        {"slug": "lee-salt-bread", "name": "소금빵 2입", "price": 5000, "image": "lee-salt-bread.webp"},
+        {"slug": "lee-churros", "name": "츄러스 3입", "price": 6000, "image": "lee-churros.webp"},
+        {"slug": "lee-choco-superstar", "name": "초코슈퍼스타 2입", "price": 5500, "image": "lee-choco-superstar.webp"}
       ] },
     { "slug": "samjin", "name": "삼진어묵", "zone": "부산 로컬푸드", "image": "samjin.webp",
       "menus": [
-        { "slug": "samjin-hansang", "name": "삼진어묵한상(삼진어묵탕+부산어묵떡볶이)", "price": 15000 },
-        { "slug": "samjin-eomuktang", "name": "삼진어묵탕", "price": 8500 },
-        { "slug": "samjin-tteokbokki", "name": "부산어묵떡볶이", "price": 8500 }
+        {"slug": "samjin-hansang", "name": "삼진어묵한상(삼진어묵탕+부산어묵떡볶이)", "price": 15000, "image": "samjin-hansang.webp"},
+        {"slug": "samjin-eomuktang", "name": "삼진어묵탕", "price": 8500, "image": "samjin-eomuktang.webp"},
+        {"slug": "samjin-tteokbokki", "name": "부산어묵떡볶이", "price": 8500, "image": "samjin-tteokbokki.webp"}
       ] },
     { "slug": "cheongcheon", "name": "청천돼지국밥", "zone": "부산 로컬푸드", "image": "cheongcheon.webp",
-      "menus": [ { "slug": "cheongcheon-gukbap", "name": "돼지국밥", "price": 9000 } ] },
+      "menus": [
+        {"slug": "cheongcheon-gukbap", "name": "돼지국밥", "price": 9000, "image": "cheongcheon-gukbap.webp"}
+      ] },
     { "slug": "jangho", "name": "장호밀면", "zone": "부산 로컬푸드", "image": "jangho.webp",
       "menus": [
-        { "slug": "jangho-milmyeon", "name": "장호밀면", "price": 10000 },
-        { "slug": "jangho-mandu", "name": "왕만두", "price": 8000 }
+        {"slug": "jangho-milmyeon", "name": "장호밀면", "price": 10000, "image": "jangho-milmyeon.webp"},
+        {"slug": "jangho-mandu", "name": "왕만두", "price": 8000}
       ] },
     { "slug": "dwaegalhu", "name": "돼갈후", "zone": "부산 로컬푸드", "image": "dwaegalhu.webp",
-      "menus": [ { "slug": "dwaegalhu-fried", "name": "돼지갈비후라이드", "price": 20000 } ] },
+      "menus": [
+        {"slug": "dwaegalhu-fried", "name": "돼지갈비후라이드", "price": 20000, "image": "dwaegalhu-fried.webp"}
+      ] },
     { "slug": "sasang-hanshin", "name": "사상 한신2차아파트 부녀회", "zone": "부산 로컬푸드", "image": "sasang-hanshin.webp",
       "menus": [
-        { "slug": "sasang-buchujeon", "name": "부추전", "price": 8000 },
-        { "slug": "sasang-sogogi-gukbap", "name": "소고기국밥", "price": 9000 }
+        {"slug": "sasang-buchujeon", "name": "부추전", "price": 8000},
+        {"slug": "sasang-sogogi-gukbap", "name": "소고기국밥", "price": 9000}
       ] },
     { "slug": "joy-chef", "name": "조이쉐프", "zone": "푸드라운지", "image": "joy-chef.webp",
       "menus": [
-        { "slug": "joy-kimchi-guksu", "name": "김치말이국수", "price": 9000 },
-        { "slug": "joy-jeyuk-guksu", "name": "제육비빔국수", "price": 10000 }
+        {"slug": "joy-kimchi-guksu", "name": "김치말이국수", "price": 9000, "image": "joy-kimchi-guksu.webp"},
+        {"slug": "joy-jeyuk-guksu", "name": "제육비빔국수", "price": 10000}
       ] },
     { "slug": "jugahyang", "name": "주가향", "zone": "푸드라운지", "image": "jugahyang.webp",
       "menus": [
-        { "slug": "jugahyang-mul-naengmyeon", "name": "물냉면", "price": 10000 },
-        { "slug": "jugahyang-mulbibim-naengmyeon", "name": "물비빔냉면", "price": 10000 },
-        { "slug": "jugahyang-bul-chobap", "name": "소고기불초밥", "price": 12000 }
+        {"slug": "jugahyang-mul-naengmyeon", "name": "물냉면", "price": 10000},
+        {"slug": "jugahyang-mulbibim-naengmyeon", "name": "물비빔냉면", "price": 10000},
+        {"slug": "jugahyang-bul-chobap", "name": "소고기불초밥", "price": 12000, "image": "jugahyang-bul-chobap.webp"}
       ] },
     { "slug": "namhae-sausage", "name": "남해독일마을 수제소시지", "zone": "푸드라운지", "image": "namhae-sausage.webp",
       "menus": [
-        { "slug": "namhae-set-a", "name": "모듬소시지 A세트", "price": 20000 },
-        { "slug": "namhae-set-b", "name": "모듬소시지 B세트", "price": 25000 }
+        {"slug": "namhae-set-a", "name": "모듬소시지 A세트", "price": 20000},
+        {"slug": "namhae-set-b", "name": "모듬소시지 B세트", "price": 25000}
       ] },
     { "slug": "osaka-yaki", "name": "오사카야끼", "zone": "푸드라운지", "image": "osaka-yaki.webp",
       "menus": [
-        { "slug": "osaka-yakisoba", "name": "야끼소바", "price": 15000 },
-        { "slug": "osaka-cube-steak", "name": "큐브스테이크", "price": 18000 }
+        {"slug": "osaka-yakisoba", "name": "야끼소바", "price": 15000},
+        {"slug": "osaka-cube-steak", "name": "큐브스테이크", "price": 18000, "image": "osaka-cube-steak.webp"}
       ] },
     { "slug": "hapsuhu", "name": "햅스후", "zone": "푸드라운지", "image": "hapsuhu.webp",
       "menus": [
-        { "slug": "hapsuhu-takoyaki", "name": "타코야끼", "price": 7000 },
-        { "slug": "hapsuhu-okonomiyaki", "name": "오꼬노미야끼", "price": 13000 }
+        {"slug": "hapsuhu-takoyaki", "name": "타코야끼", "price": 7000, "image": "hapsuhu-takoyaki.webp"},
+        {"slug": "hapsuhu-okonomiyaki", "name": "오꼬노미야끼", "price": 13000}
       ] },
     { "slug": "daum-cupbap", "name": "다옴컵밥", "zone": "푸드라운지", "image": "daum-cupbap.webp",
       "menus": [
-        { "slug": "daum-spam-mayo", "name": "스팸마요컵밥", "price": 10500 },
-        { "slug": "daum-chicken-mayo", "name": "치킨마요컵밥", "price": 11000 },
-        { "slug": "daum-jeyuk-deopbap", "name": "철판제육덮밥", "price": 13000 }
+        {"slug": "daum-spam-mayo", "name": "스팸마요컵밥", "price": 10500, "image": "daum-spam-mayo.webp"},
+        {"slug": "daum-chicken-mayo", "name": "치킨마요컵밥", "price": 11000},
+        {"slug": "daum-jeyuk-deopbap", "name": "철판제육덮밥", "price": 13000}
       ] },
     { "slug": "musteat", "name": "머스트잇", "zone": "푸드라운지", "image": "musteat.webp",
       "menus": [
-        { "slug": "musteat-samgyeopsal", "name": "잘익은삼겹살", "price": 18000 },
-        { "slug": "musteat-rice", "name": "공기밥", "price": 2000 }
+        {"slug": "musteat-samgyeopsal", "name": "잘익은삼겹살", "price": 18000, "image": "musteat-samgyeopsal.webp"},
+        {"slug": "musteat-rice", "name": "공기밥", "price": 2000}
       ] },
     { "slug": "pops-smoke-train", "name": "팝스스모크트레인", "zone": "푸드라운지", "image": "pops-smoke-train.webp",
       "menus": [
-        { "slug": "pops-burrito", "name": "스모크 풀드포크 브리또", "price": 16000 },
-        { "slug": "pops-philly-taco", "name": "스모크 필리타코(3pcs)", "price": 13000 }
+        {"slug": "pops-burrito", "name": "스모크 풀드포크 브리또", "price": 16000, "image": "pops-burrito.webp"},
+        {"slug": "pops-philly-taco", "name": "스모크 필리타코(3pcs)", "price": 13000}
+      ] },
+    { "slug": "daeho", "name": "대호반점", "zone": "푸드라운지", "image": "daeho.webp",
+      "menus": [
+        {"slug": "daeho-jjajang", "name": "짜장면", "price": 10000, "image": "daeho-jjajang.webp"}
+      ] },
+    { "slug": "michin-pizza", "name": "미친피자", "zone": "푸드라운지", "image": "michin-pizza.webp",
+      "menus": [
+        {"slug": "michin-pizza-signature", "name": "미친피자 시그니처", "price": 21900},
+        {"slug": "michin-pizza-pepperoni", "name": "미친피자 페퍼로니", "price": 15900},
+        {"slug": "michin-pizza-double-cheese", "name": "미친피자 더블치즈", "price": 13900}
+      ] },
+    { "slug": "morgan", "name": "모건", "zone": "푸드라운지", "image": "morgan.webp", "note": "포스터 캡처 하단이 잘려 있어 이후 메뉴가 더 있을 수 있음",
+      "menus": [
+        {"slug": "morgan-cheese-half", "name": "치즈닭강정 한판", "price": 15000},
+        {"slug": "morgan-cheese-box", "name": "치즈닭강정 한박스", "price": 20000},
+        {"slug": "morgan-cumin-half", "name": "쯔란닭강정 한판", "price": 15000},
+        {"slug": "morgan-cumin-box", "name": "쯔란닭강정 한박스", "price": 20000}
+      ] },
+    { "slug": "yob-burger", "name": "욥버거", "zone": "푸드라운지", "image": "yob-burger.webp", "note": "포스터 캡처 하단이 잘려 있어 이후 메뉴가 더 있을 수 있음",
+      "menus": [
+        {"slug": "yob-burger-hanwoo-cheese", "name": "한우치즈버거", "price": 10000, "image": "yob-burger-hanwoo-cheese.webp"},
+        {"slug": "yob-burger-xyob-corn-dog", "name": "솔팅XYOB 콘치즈핫도그", "price": 10000, "image": "yob-burger-xyob-corn-dog.webp"},
+        {"slug": "yob-burger-fries", "name": "프렌치프라이즈", "price": 5000},
+        {"slug": "yob-burger-beef-cheese-fries", "name": "비프치즈프라이즈", "price": 10000}
+      ] },
+    { "slug": "cheongchun", "name": "청춘분식", "zone": "푸드라운지", "image": "cheongchun.webp", "note": "총 메뉴 7종 중 5종만 확인",
+      "menus": [
+        {"slug": "cheongchun-chicken-skewer", "name": "닭꼬치", "price": 6000},
+        {"slug": "cheongchun-jjondeugi", "name": "쫀드기", "price": 6000},
+        {"slug": "cheongchun-tteokbokki", "name": "떡볶이", "price": 5000, "image": "cheongchun-tteokbokki.webp"},
+        {"slug": "cheongchun-eomuktang", "name": "어묵탕", "price": 6000},
+        {"slug": "cheongchun-ttwisun", "name": "떡+튀+순", "price": 18000, "image": "cheongchun-ttwisun.webp"}
+      ] },
+    { "slug": "shrimp-box", "name": "쉬림프박스", "zone": "푸드라운지", "image": "shrimp-box.webp",
+      "menus": [
+        {"slug": "shrimp-box-chili", "name": "칠리새우강정", "price": 14000},
+        {"slug": "shrimp-box-cream", "name": "크림새우강정", "price": 14000},
+        {"slug": "shrimp-box-half", "name": "반반새우강정", "price": 15000},
+        {"slug": "shrimp-box-fried", "name": "새우튀김", "price": 14000},
+        {"slug": "shrimp-box-box", "name": "쉬림프박스", "price": 27000}
+      ] },
+    { "slug": "texas-dogs", "name": "텍사스독스", "zone": "푸드라운지", "image": "texas-dogs.webp",
+      "menus": [
+        {"slug": "texas-dogs-beef-padthai", "name": "소고기팟타이", "price": 12000},
+        {"slug": "texas-dogs-shrimp-padthai", "name": "새우팟타이", "price": 12000, "image": "texas-dogs-shrimp-padthai.webp"},
+        {"slug": "texas-dogs-mala-beef-padthai", "name": "마라소고기팟타이", "price": 13000},
+        {"slug": "texas-dogs-mala-shrimp-padthai", "name": "마라새우팟타이", "price": 13000}
+      ] },
+    { "slug": "vegan", "name": "비건", "zone": "푸드라운지", "image": "vegan.webp", "note": "총 메뉴 5종 중 3종만 확인",
+      "menus": [
+        {"slug": "vegan-keto-kimbap", "name": "키토김밥 순한맛", "price": 7000},
+        {"slug": "vegan-keto-kimbap-buldak", "name": "키토김밥 불닭맛", "price": 7000},
+        {"slug": "vegan-iced-soy-milk", "name": "아이스콩물", "price": 5000}
+      ] },
+    { "slug": "berock", "name": "비락식혜", "zone": "푸드라운지", "image": "berock.webp",
+      "menus": [
+        {"slug": "berock-slush", "name": "비락식혜 슬러시(495ml)", "price": 2000}
+      ] },
+    { "slug": "dwaeji-bingsu", "name": "돼지팥빙수", "zone": "푸드라운지", "image": "dwaeji-bingsu.webp",
+      "menus": [
+        {"slug": "dwaeji-bingsu-red-bean", "name": "수제팥 돼지빙수", "price": 13000},
+        {"slug": "dwaeji-bingsu-mango-cheese", "name": "망고치즈빙수", "price": 15000, "image": "dwaeji-bingsu-mango-cheese.webp"},
+        {"slug": "dwaeji-bingsu-shine-muscat", "name": "샤인청포도빙수(한정판매)", "price": 15000}
+      ] },
+    { "slug": "daesun", "name": "대선", "zone": "음료·주류", "image": "daesun.webp", "note": "포스터 가격 표기 \"3,0\"을 3,000원으로 해석. 메뉴별 사진은 seed/menu-images/",
+      "menus": [
+        {"slug": "daesun-double-shot", "name": "대선 더블샷", "price": 3000, "image": "daesun-double-shot.webp"},
+        {"slug": "daesun-shine-double-shot", "name": "샤인머스캣 더블샷", "price": 4000, "image": "daesun-shine-double-shot.webp"},
+        {"slug": "daesun-wine-half", "name": "와인 반잔", "price": 4000, "image": "daesun-wine-half.webp"},
+        {"slug": "daesun-presso", "name": "대선 프레소", "price": 5000, "image": "daesun-presso.webp"},
+        {"slug": "daesun-highball", "name": "대선 하이볼", "price": 6000, "image": "daesun-highball.webp"},
+        {"slug": "daesun-gwangan-ocean", "name": "광안 오션", "price": 7000, "image": "daesun-gwangan-ocean.webp"},
+        {"slug": "daesun-haeundae-rising", "name": "해운대 라이징", "price": 7000, "image": "daesun-haeundae-rising.webp"},
+        {"slug": "daesun-songjeong-crush", "name": "송정 크러쉬", "price": 7000, "image": "daesun-songjeong-crush.webp"},
+        {"slug": "daesun-daebakju", "name": "대박주", "price": 7000, "image": "daesun-daebakju.webp"}
+      ] },
+    { "slug": "monster", "name": "몬스터 에너지", "zone": "음료·주류", "image": "monster.webp",
+      "menus": [
+        {"slug": "monster-original", "name": "몬스터 에너지", "price": 2000, "image": "monster-original.webp"},
+        {"slug": "monster-zero-sugar", "name": "몬스터 에너지 제로 슈거", "price": 2000, "image": "monster-zero-sugar.webp"},
+        {"slug": "monster-ultra", "name": "몬스터 에너지 울트라", "price": 2000, "image": "monster-ultra.webp"},
+        {"slug": "monster-mango-loco", "name": "몬스터 에너지 망고 로코", "price": 2000, "image": "monster-mango-loco.webp"},
+        {"slug": "monster-pipeline-punch", "name": "몬스터 에너지 파이프라인 펀치", "price": 2000, "image": "monster-pipeline-punch.webp"}
+      ] },
+    { "slug": "tsingtao", "name": "칭따오", "zone": "음료·주류", "image": "tsingtao.webp",
+      "menus": [
+        {"slug": "tsingtao-lager-400", "name": "칭따오 라거 생맥주 400ml", "price": 6000, "image": "tsingtao-lager.webp"},
+        {"slug": "tsingtao-lager-1l", "name": "칭따오 라거 생맥주 1L", "price": 11500, "image": "tsingtao-lager.webp"},
+        {"slug": "tsingtao-na-small", "name": "칭따오 논알콜릭 Small", "price": 5500, "image": "tsingtao-na.webp"},
+        {"slug": "tsingtao-na-large", "name": "칭따오 논알콜릭 Large", "price": 10000, "image": "tsingtao-na.webp"},
+        {"slug": "tsingtao-na-lemon-small", "name": "칭따오 논알콜릭 레몬 Small", "price": 5500, "image": "tsingtao-na-lemon.webp"},
+        {"slug": "tsingtao-na-lemon-large", "name": "칭따오 논알콜릭 레몬 Large", "price": 10000, "image": "tsingtao-na-lemon.webp"}
       ] }
   ]
 }

@@ -2,7 +2,7 @@ import { Controller, Get, Inject, Logger, Post, Query, Req, Res } from '@nestjs/
 import crypto from 'node:crypto';
 import type { Request, Response } from 'express';
 import { AppConfig, CONFIG } from '../config';
-import { GenderCheck, KakaoClient, KakaoIdentity } from './kakao.client';
+import { KakaoClient, KakaoIdentity } from './kakao.client';
 import { SessionService } from './session.service';
 import { UsersService } from './users.service';
 
@@ -28,14 +28,14 @@ export class AuthController {
   ) {}
 
   @Get('kakao/login')
-  login(@Query('returnTo') returnTo: string, @Query('consent') consent: string, @Res() res: Response) {
+  login(@Query('returnTo') returnTo: string, @Res() res: Response) {
     const state = crypto.randomBytes(16).toString('base64url');
     res.cookie(STATE_COOKIE, JSON.stringify({ state, returnTo: safeReturnTo(returnTo) }), {
       ...this.sessions.cookieOptions(),
       maxAge: 10 * 60 * 1000,
     });
     if (this.cfg.authMock) return res.redirect(`/api/auth/mock?state=${state}`);
-    res.redirect(this.kakao.authorizeUrl(state, consent === 'gender'));
+    res.redirect(this.kakao.authorizeUrl(state));
   }
 
   @Get('kakao/callback')
@@ -63,14 +63,9 @@ export class AuthController {
       return res.redirect(`/auth/denied?${q({ reason: 'error', returnTo })}`);
     }
 
-    if (identity.gender !== 'female') {
-      // 계정·세션을 만들지 않는다. 성별 값도 저장하지 않는다.
-      return res.redirect(`/auth/denied?${q({ reason: identity.gender, returnTo })}`);
-    }
-
     // 기존 세션이 있었다면 교체
     this.sessions.destroy(req, res);
-    const user = this.users.upsertVerified(identity.kakaoId);
+    const user = this.users.upsertByKakaoId(identity.kakaoId);
     this.sessions.create(res, user.id);
     // 첫 로그인 후 닉네임 확인 없이 나갔던 경우에도 다시 닉네임 화면(A3)으로 보낸다
     const confirmed = !user.isNew && this.users.isNicknameConfirmed(user.id);
@@ -96,21 +91,19 @@ export class AuthController {
 <form action="/api/auth/mock/go" method="get">
 <input type="hidden" name="state" value="${s}">
 <p><label>카카오 id <input name="kid" value="1001" required></label></p>
-<p><label>성별 <select name="g"><option value="female">female</option><option value="male">male</option><option value="none">(제공 안 함)</option></select></label></p>
 <button>로그인</button></form>
 <p><a href="/api/auth/kakao/callback?error=access_denied&state=${s}">동의 취소 흉내</a></p></body>`);
   }
 
   @Get('mock/go')
-  mockGo(@Query('state') state: string, @Query('kid') kid: string, @Query('g') g: string, @Res() res: Response) {
+  mockGo(@Query('state') state: string, @Query('kid') kid: string, @Res() res: Response) {
     if (!this.cfg.authMock) return res.status(404).end();
-    const code = `mock:${String(kid).replace(/[^0-9a-z]/gi, '')}:${g}`;
+    const code = `mock:${String(kid).replace(/[^0-9a-z]/gi, '')}`;
     res.redirect(`/api/auth/kakao/callback?${new URLSearchParams({ code, state: state ?? '' })}`);
   }
 
   private mockIdentity(code: string): KakaoIdentity {
-    const [, kakaoId, g] = code.split(':');
-    const gender: GenderCheck = g === 'female' ? 'female' : g === 'none' ? 'missing' : 'other';
-    return { kakaoId: `mock-${kakaoId}`, gender };
+    const [, kakaoId] = code.split(':');
+    return { kakaoId: `mock-${kakaoId}` };
   }
 }

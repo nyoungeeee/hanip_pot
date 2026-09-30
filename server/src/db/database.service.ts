@@ -6,7 +6,7 @@ import { AppConfig, CONFIG } from '../config';
 import { MIGRATIONS } from './migrations';
 import { nowIso } from '../common/event';
 
-interface SeedMenu { slug: string; name: string; price: number | null }
+interface SeedMenu { slug: string; name: string; price: number | null; image?: string }
 interface SeedVendor { slug: string; name: string; zone?: string; image?: string; menus: SeedMenu[] }
 
 @Injectable()
@@ -52,10 +52,10 @@ export class DatabaseService implements OnModuleDestroy {
         vendor_image=excluded.vendor_image, sort_order=excluded.sort_order
       RETURNING id`);
     const upsertMenu = this.db.prepare(`
-      INSERT INTO menus (vendor_id, slug, name, price, is_official, active, sort_order, created_at)
-      VALUES (@vendorId, @slug, @name, @price, 1, 1, @sort, @now)
+      INSERT INTO menus (vendor_id, slug, name, price, menu_image, is_official, active, sort_order, created_at)
+      VALUES (@vendorId, @slug, @name, @price, @image, 1, 1, @sort, @now)
       ON CONFLICT(slug) DO UPDATE SET vendor_id=excluded.vendor_id, name=excluded.name,
-        price=excluded.price, active=1, sort_order=excluded.sort_order`);
+        price=excluded.price, menu_image=excluded.menu_image, active=1, sort_order=excluded.sort_order`);
 
     this.db.transaction(() => {
       const seen: string[] = [];
@@ -66,7 +66,10 @@ export class DatabaseService implements OnModuleDestroy {
         }) as { id: number };
         v.menus.forEach((m, mi) => {
           seen.push(m.slug);
-          upsertMenu.run({ vendorId, slug: m.slug, name: m.name, price: m.price ?? null, sort: mi, now });
+          upsertMenu.run({
+            vendorId, slug: m.slug, name: m.name, price: m.price ?? null,
+            image: m.image ? `/media/menus/${m.image}` : null, sort: mi, now,
+          });
         });
       });
       const placeholders = seen.map(() => '?').join(',');

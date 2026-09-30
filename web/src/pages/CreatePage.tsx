@@ -9,7 +9,7 @@ import {
   validateDetails, validateMenus,
 } from '../components/PostForm';
 import { Empty, Spinner, Thumb } from '../components/ui';
-import { longDay, won } from '../format';
+import { longDay, menuSubLine } from '../format';
 import { IconCheck } from '../components/Icons';
 
 const DRAFT_KEY = 'hp_draft';
@@ -168,13 +168,13 @@ function Summary({ draft, vendors }: { draft: Draft; vendors: Parameters<typeof 
             {refs.map((m) => (
               <div key={m.id} className="detail-menu">
                 <Thumb src={m.image} size={40} />
-                <div><div className="n">{m.name}</div><div className="v">{m.vendorName}{m.price != null && ` · ${won(m.price)}`}</div></div>
+                <div><div className="n">{m.name}</div><div className="v">{menuSubLine(m)}</div></div>
               </div>
             ))}
             {draft.customs.map((c) => (
               <div key={c.key} className="detail-menu">
                 <Thumb src={c.imageUrl} size={40} />
-                <div><div className="n">{c.name} <span className="tag">기타</span></div><div className="v">{c.vendorName}{c.price && ` · ${won(Number(c.price))}`}</div></div>
+                <div><div className="n">{c.name} <span className="tag">기타</span></div><div className="v">{menuSubLine({ ...c, price: c.price ? Number(c.price) : null })}</div></div>
               </div>
             ))}
           </div>
@@ -201,23 +201,37 @@ export function CreateDonePage() {
     <>
       <Header />
       <main className="page">
-        <div className="center" style={{ padding: '36px 0 20px' }}>
-          <div className="icon-circle" style={{ width: 64, height: 64 }}><IconCheck size={28} /></div>
+        <div className="center" style={{ padding: '28px 0 22px' }}>
+          <div className="icon-circle" style={{ width: 56, height: 56 }}><IconCheck size={24} /></div>
           <h2 style={{ fontSize: 19, fontWeight: 600, marginBottom: 6 }}>모집글이 등록됐어요</h2>
           <p className="muted">함께 맛볼 분들이 오픈카톡으로 찾아올 거예요.</p>
         </div>
-        <div className="card" style={{ marginBottom: 18 }}>
-          <div style={{ fontWeight: 600, marginBottom: 6 }}>{post.title}</div>
-          <div className="small muted">{longDay(post.day)} {post.time} · 희망 인원 {post.targetPeople}명</div>
-          <div className="menu-thumbs">
-            {post.menus.map((m) => (
-              <figure key={m.id}><Thumb src={m.image} size={76} /><figcaption>{m.name}</figcaption></figure>
-            ))}
+        <section className="done-card" aria-label="등록한 모집글">
+          <div className="done-when">
+            <div>
+              <div className="done-day">{longDay(post.day)}</div>
+              <div className="done-time">{post.time}</div>
+            </div>
+            <div className="done-people">희망 인원<strong>{post.targetPeople}명</strong></div>
           </div>
-        </div>
+          <div className="done-body">
+            <h3 className="done-title">{post.title}</h3>
+            <ul className="done-menus">
+              {post.menus.map((m) => (
+                <li key={m.id}>
+                  <Thumb src={m.image} size={40} />
+                  <div className="grow">
+                    <div className="n">{m.name}</div>
+                    {menuSubLine(m) && <div className="v">{menuSubLine(m)}</div>}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
         <div className="stack">
           <Link className="btn primary" to="/me/posts" replace>내 모집글 보기</Link>
-          <Link className="btn outline" to={`/timeline?day=${post.day}`} replace>시간별 목록으로</Link>
+          <Link className="btn outline" to={`/?day=${post.day}`} replace>시간별 목록으로</Link>
         </div>
       </main>
     </>

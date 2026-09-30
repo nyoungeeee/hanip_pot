@@ -6,7 +6,7 @@ import { COPY } from '../copy';
 import { Header } from '../components/Layout';
 import { IconLock } from '../components/Icons';
 import { Empty, ErrorState, Spinner, StatusBadge, Thumb } from '../components/ui';
-import { longDay, won } from '../format';
+import { longDay, menuSubLine } from '../format';
 
 export default function PostDetailPage() {
   const { id } = useParams();
@@ -72,7 +72,7 @@ export default function PostDetailPage() {
                         <Thumb src={m.image} size={44} />
                         <div className="grow">
                           <div className="n">{m.name}</div>
-                          <div className="v">{m.vendorName}{m.price != null && ` · ${won(m.price)}`}</div>
+                          <div className="v">{menuSubLine(m)}</div>
                         </div>
                       </div>
                     ))}

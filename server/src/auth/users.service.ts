@@ -15,18 +15,18 @@ export class UsersService {
   nicknameTaken = (nickname: string, exceptUserId?: number): boolean =>
     !!this.db.prepare('SELECT 1 FROM users WHERE nickname = ? AND id IS NOT ?').get(nickname, exceptUserId ?? null);
 
-  /** 성별 확인을 통과한 카카오 계정을 찾거나 새로 만든다. 매 로그인마다 확인 시각을 갱신. */
-  upsertVerified(kakaoId: string): { id: number; isNew: boolean } {
+  /** 카카오 계정을 찾거나 새로 만든다. 매 로그인마다 마지막 로그인 시각을 갱신. */
+  upsertByKakaoId(kakaoId: string): { id: number; isNew: boolean } {
     const now = nowIso();
     return this.db.transaction(() => {
       const existing = this.db.prepare('SELECT id FROM users WHERE kakao_id = ?').get(kakaoId) as { id: number } | undefined;
       if (existing) {
-        this.db.prepare('UPDATE users SET gender_check_at = ? WHERE id = ?').run(now, existing.id);
+        this.db.prepare('UPDATE users SET last_login_at = ? WHERE id = ?').run(now, existing.id);
         return { id: existing.id, isNew: false };
       }
       const nickname = withFreeSuffix(randomNickname(), (n) => this.nicknameTaken(n));
       const { lastInsertRowid } = this.db
-        .prepare('INSERT INTO users (kakao_id, nickname, nickname_confirmed, gender_check_at, created_at) VALUES (?, ?, 0, ?, ?)')
+        .prepare('INSERT INTO users (kakao_id, nickname, nickname_confirmed, last_login_at, created_at) VALUES (?, ?, 0, ?, ?)')
         .run(kakaoId, nickname, now, now);
       return { id: Number(lastInsertRowid), isNew: true };
     })();

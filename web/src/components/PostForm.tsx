@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { api, ApiError, MenuRef, Rules, Vendor } from '../api';
 import { useApp } from '../app-context';
-import { toMeetupIso, won } from '../format';
+import { filterVendors, matchesQuery, nearestSlot, toMeetupIso, won } from '../format';
 import { IconCheck, IconClose, IconImage } from './Icons';
-import { Sheet, Spinner, Thumb } from './ui';
+import { byVendor, SearchBox, Sheet, Spinner, Thumb, VendorFilter } from './ui';
 
 export interface CustomDraft {
   key: string;
@@ -57,7 +57,9 @@ export function validateMenus(d: Draft, rules: Rules): FieldErrors {
 
 export function validateDetails(d: Draft, rules: Rules): FieldErrors {
   const e: FieldErrors = {};
+  const hour = Number(d.time.slice(0, 2));
   if (!d.time) e.time = '모임 시간을 선택해 주세요.';
+  else if (hour < rules.hourStart || hour >= rules.hourEnd) e.time = '모임 시간은 행사 운영 시간(오전 10시~밤 12시) 안에서 정해 주세요.';
   else if (toMeetupIso(d.day, d.time) <= new Date().toISOString()) e.time = '이미 지난 시간은 선택할 수 없어요.';
   if (!d.title.trim()) e.title = '제목을 입력해 주세요.';
   else if ([...d.title.trim()].length > rules.titleMax) e.title = `제목은 ${rules.titleMax}자 이내로 입력해 주세요.`;
@@ -92,13 +94,15 @@ export function MenuPicker({ draft, setDraft, vendors, extraMenus, rules, error 
   rules: Rules; error?: string;
 }) {
   const [customOpen, setCustomOpen] = useState(false);
+  const [query, setQuery] = useState('');
+  const [vendorIds, setVendorIds] = useState<number[]>([]);
   const count = draft.menuIds.length + draft.customs.length;
   const full = count >= rules.menusMax;
   const toggle = (id: number) =>
     setDraft((d) => ({ ...d, menuIds: d.menuIds.includes(id) ? d.menuIds.filter((x) => x !== id) : [...d.menuIds, id] }));
   const refs = selectedRefs(draft, vendors, extraMenus);
-  const customRefs = extraMenus.filter((m) => !m.isOfficial);
-  const jump = (id: number) => document.getElementById(`pick-vendor-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const customRefs = extraMenus.filter((m) => !m.isOfficial && (matchesQuery(query, m.name) || matchesQuery(query, m.vendorName)));
+  const shown = filterVendors(byVendor(vendors, vendorIds), query);
 
   return (
     <div>
@@ -123,9 +127,11 @@ export function MenuPicker({ draft, setDraft, vendors, extraMenus, rules, error 
       )}
       {error && <div className="error-box" role="alert">{error}</div>}
 
-      <div className="vendor-chips">
-        {vendors.map((v) => <button key={v.id} type="button" onClick={() => jump(v.id)}>{v.name}</button>)}
-      </div>
+      <SearchBox value={query} onChange={setQuery} />
+      <VendorFilter vendors={vendors} selected={vendorIds} onChange={setVendorIds} />
+      {query && shown.length === 0 && customRefs.length === 0 && (
+        <div className="search-empty">'{query}'에 맞는 메뉴가 없어요. 아래에서 기타 메뉴로 직접 추가해 주세요.</div>
+      )}
 
       {customRefs.length > 0 && (
         <section className="vendor">
@@ -135,7 +141,7 @@ export function MenuPicker({ draft, setDraft, vendors, extraMenus, rules, error 
           ))}
         </section>
       )}
-      {vendors.map((v) => (
+      {shown.map((v) => (
         <section key={v.id} className="vendor" id={`pick-vendor-${v.id}`}>
           <div className="vendor-head"><h3>{v.name}</h3>{v.zone && <span>{v.zone}</span>}</div>
           <div style={{ padding: '0 4px 6px' }}>
@@ -250,8 +256,21 @@ export function DetailsForm({ draft, setDraft, rules, days, errors }: {
   const [hh, mm] = draft.time ? draft.time.split(':') : ['', ''];
   const setTime = (h: string, m: string) => setDraft((d) => ({ ...d, time: h && m ? `${h}:${m}` : h ? `${h}:${m || '00'}` : '' }));
   const set = <K extends keyof Draft>(k: K) => (v: Draft[K]) => setDraft((d) => ({ ...d, [k]: v }));
+  // 시간이 비어 있으면 지금 이후 가장 가까운 운영 시간으로 채운다
+  useEffect(() => {
+    if (!draft.time) {
+      const t = nearestSlot(draft.day, rules);
+      if (t) setDraft((d) => (d.time ? d : { ...d, time: t }));
+    }
+  }, [draft.day, draft.time, rules, setDraft]);
+  // 날짜를 바꿨는데 고른 시간이 그날엔 이미 지났다면 그날의 가장 가까운 시간으로 옮긴다
+  const pickDay = (day: string) =>
+    setDraft((d) => {
+      const stale = !d.time || toMeetupIso(day, d.time) <= new Date().toISOString();
+      return { ...d, day, time: stale ? nearestSlot(day, rules) : d.time };
+    });
   const minutes = Array.from({ length: 60 / rules.minuteStep }, (_, i) => String(i * rules.minuteStep).padStart(2, '0'));
-  const hours = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'));
+  const hours = Array.from({ length: rules.hourEnd - rules.hourStart }, (_, i) => String(rules.hourStart + i).padStart(2, '0'));
 
   return (
     <div>
@@ -259,7 +278,7 @@ export function DetailsForm({ draft, setDraft, rules, days, errors }: {
         <span className="label">언제 드실래요?<span className="req">*</span></span>
         <div className="days" style={{ margin: 0 }}>
           {days.map((d) => (
-            <button key={d.date} type="button" aria-pressed={draft.day === d.date} onClick={() => set('day')(d.date)}>{d.label}</button>
+            <button key={d.date} type="button" aria-pressed={draft.day === d.date} onClick={() => pickDay(d.date)}>{d.label}</button>
           ))}
         </div>
       </div>
@@ -275,7 +294,7 @@ export function DetailsForm({ draft, setDraft, rules, days, errors }: {
             {minutes.map((m) => <option key={m} value={m}>{m}분</option>)}
           </select>
         </div>
-        {errors.time && <span className="err">{errors.time}</span>}
+        {errors.time ? <span className="err">{errors.time}</span> : <span className="hint">행사 운영 시간 오전 10시~밤 12시 안에서 골라 주세요.</span>}
       </div>
       <div className="field">
         <span className="label">희망 인원<span className="req">*</span></span>

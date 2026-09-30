@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router';
 import { api, ApiError, PostDetail, PostStatus } from '../api';
 import { useApp } from '../app-context';
 import { Header } from '../components/Layout';
-import { IconChevron, IconDoc, IconHelp, IconLogout, IconPencil, IconTrash } from '../components/Icons';
+import { IconChevron, IconDoc, IconHelp, IconLogout, IconPencil } from '../components/Icons';
 import {
   CatalogGate, DetailsForm, Draft, FieldErrors, mapServerErrors, MenuPicker, toBody, validateDetails, validateMenus,
 } from '../components/PostForm';
@@ -44,8 +44,8 @@ export function MePage() {
           <Link to="/me/posts"><span className="ic"><IconDoc /></span><span className="grow">내 모집글</span>{count !== null && <span className="count">{count}건</span>}<IconChevron /></Link>
           <Link to="/guide"><span className="ic"><IconHelp /></span><span className="grow">이용 안내</span><IconChevron /></Link>
           <button type="button" onClick={logout}><span className="ic"><IconLogout /></span><span className="grow">로그아웃</span><IconChevron /></button>
-          <Link to="/me/withdraw"><span className="ic"><IconTrash /></span><span className="grow">회원 탈퇴</span><IconChevron /></Link>
         </nav>
+        <Link to="/me/withdraw" className="withdraw-link">회원 탈퇴</Link>
       </main>
       {editing && <NicknameSheet onClose={() => setEditing(false)} />}
     </>
@@ -172,7 +172,7 @@ export function MyPostsPage() {
                   <StatusBadge status={p.status} />
                 </div>
                 <div className="menu-thumbs">
-                  {p.menus.map((m) => <figure key={m.id}><Thumb src={m.image} size={76} /><figcaption>{m.name}</figcaption></figure>)}
+                  {p.menus.map((m) => <figure key={m.id}><Thumb src={m.image} size={28} /><figcaption>{m.name}</figcaption></figure>)}
                 </div>
                 <div className="small muted" style={{ marginTop: 6 }}>
                   {longDay(p.day)} {p.time} · 희망 인원 {p.targetPeople}명
@@ -298,8 +298,8 @@ export function EditPostPage() {
                   <div className="menu-thumbs">
                     {[...post.menus, ...vendors.flatMap((v) => v.menus)]
                       .filter((m, i, a) => draft.menuIds.includes(m.id) && a.findIndex((x) => x.id === m.id) === i)
-                      .map((m) => <figure key={m.id}><Thumb src={m.image} size={76} /><figcaption>{m.name}</figcaption></figure>)}
-                    {draft.customs.map((c) => <figure key={c.key}><Thumb src={c.imageUrl} size={76} /><figcaption>{c.name}</figcaption></figure>)}
+                      .map((m) => <figure key={m.id}><Thumb src={m.image} size={28} /><figcaption>{m.name}</figcaption></figure>)}
+                    {draft.customs.map((c) => <figure key={c.key}><Thumb src={c.imageUrl} size={28} /><figcaption>{c.name}</figcaption></figure>)}
                   </div>
                 )}
                 {!menuEdit && errors.menus && <span className="err">{errors.menus}</span>}

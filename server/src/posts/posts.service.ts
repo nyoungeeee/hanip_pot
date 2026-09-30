@@ -19,6 +19,7 @@ const PUBLIC_WHERE = `p.status != 'CANCELLED' AND u.withdrawn_at IS NULL`;
 
 const OPEN_CHAT_RE = /^https:\/\/open\.kakao\.com\/o\/[A-Za-z0-9_-]{4,40}$/;
 const TIME_RE = /^([01]\d|2[0-3]):([0-5]\d)$/;
+const HOURS_MESSAGE = '모임 시간은 행사 운영 시간(오전 10시~밤 12시) 안에서 정해 주세요.';
 
 export interface MenuRef {
   id: number;
@@ -295,6 +296,7 @@ export class PostsService implements OnModuleInit, OnModuleDestroy {
     const tm = TIME_RE.exec(time);
     if (!tm) errors.time = '모임 시간을 입력해 주세요.';
     else if (Number(tm[2]) % POST_RULES.minuteStep !== 0) errors.time = `${POST_RULES.minuteStep}분 단위로 입력해 주세요.`;
+    else if (Number(tm[1]) < POST_RULES.hourStart || Number(tm[1]) >= POST_RULES.hourEnd) errors.time = HOURS_MESSAGE;
     let meetupAt = '';
     if (!errors.day && !errors.time) {
       meetupAt = kstToUtcIso(day as string, time);

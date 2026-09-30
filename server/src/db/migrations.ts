@@ -81,4 +81,16 @@ export const MIGRATIONS: string[] = [
   );
   CREATE INDEX post_menus_menu ON post_menus(menu_id, post_id);
   `,
+  // 성별 확인 제거: 확인 시각 대신 마지막 로그인 시각으로 쓴다
+  `ALTER TABLE users RENAME COLUMN gender_check_at TO last_login_at;`,
+  // 모임 시각을 행사 운영 시간(10:00~24:00 KST)으로 제한: 그 전 시각으로 등록된 글은 그날 10:00으로 옮긴다.
+  // 옮긴 시각이 아직 안 지났는데 시간 경과로 종료됐던 글은 다시 모집중으로 돌린다.
+  `
+  UPDATE posts SET status = 'OPEN', close_reason = NULL, closed_at = NULL
+  WHERE status = 'CLOSED' AND close_reason = 'EXPIRED'
+    AND strftime('%H:%M', meetup_at, '+9 hours') < '10:00'
+    AND event_day || 'T01:00:00.000Z' > strftime('%Y-%m-%dT%H:%M:%fZ', 'now');
+  UPDATE posts SET meetup_at = event_day || 'T01:00:00.000Z'
+  WHERE strftime('%H:%M', meetup_at, '+9 hours') < '10:00';
+  `,
 ];

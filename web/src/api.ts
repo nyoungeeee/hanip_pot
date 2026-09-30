@@ -59,6 +59,8 @@ export interface Rules {
   menusMax: number;
   customMenusMax: number;
   minuteStep: number;
+  hourStart: number;
+  hourEnd: number;
 }
 export interface DaysResponse {
   days: { date: string; label: string }[];
@@ -128,8 +130,6 @@ export const api = {
   },
 };
 
-export function loginUrl(returnTo: string, consent?: 'gender') {
-  const p = new URLSearchParams({ returnTo });
-  if (consent) p.set('consent', consent);
-  return `/api/auth/kakao/login?${p}`;
+export function loginUrl(returnTo: string) {
+  return `/api/auth/kakao/login?${new URLSearchParams({ returnTo })}`;
 }

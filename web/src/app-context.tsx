@@ -22,6 +22,8 @@ const AppCtx = createContext<Ctx>(null!);
 export const useApp = () => useContext(AppCtx);
 
 const DAY_KEY = 'hp_day';
+// 서버가 규칙 값을 빠뜨려도(구버전 서버 등) 화면이 깨지지 않도록 쓰는 기본값
+const RULE_DEFAULTS = { minuteStep: 10, hourStart: 10, hourEnd: 24 };
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<Me | null>(null);
@@ -45,7 +47,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     refreshUser();
-    const load = () => api.days().then(setMeta).catch(() => setTimeout(load, 3000));
+    const load = () =>
+      api.days()
+        .then((m) => setMeta({ ...m, rules: { ...RULE_DEFAULTS, ...m.rules } }))
+        .catch(() => setTimeout(load, 3000));
     load();
   }, [refreshUser]);
 
@@ -127,4 +132,24 @@ export function useSelectedDay(): [string | null, (d: string) => void] {
     }, { replace: true });
   };
   return [day, setDay];
+}
+
+const OPEN_ONLY_KEY = 'hp_open_only';
+
+/** "모집중인 팟만 보기". 메뉴별·시간별 화면이 같은 값을 쓰도록 탭 세션 동안 기억한다. */
+export function useOpenOnly(): [boolean, (v: boolean) => void] {
+  const [value, setValue] = useState(() => {
+    try {
+      return sessionStorage.getItem(OPEN_ONLY_KEY) === '1';
+    } catch {
+      return false;
+    }
+  });
+  const set = (v: boolean) => {
+    setValue(v);
+    try {
+      sessionStorage.setItem(OPEN_ONLY_KEY, v ? '1' : '0');
+    } catch {}
+  };
+  return [value, set];
 }

@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
-    "start": "node --env-file-if-exists=.env dist/main.js",
-    "dev": "tsc -p tsconfig.build.json && (tsc -p tsconfig.build.json --watch --preserveWatchOutput & node --env-file-if-exists=.env --watch-path=dist dist/main.js)",
+    "start": "node dist/main.js",
+    "dev": "tsc -p tsconfig.build.json && (tsc -p tsconfig.build.json --watch --preserveWatchOutput & node --watch-path=dist dist/main.js)",
     "test": "node --test --test-concurrency=1 dist-test/test/api.test.js",
     "pretest": "tsc -p tsconfig.test.json"
   },

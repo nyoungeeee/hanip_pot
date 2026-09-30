@@ -1,10 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { api, TimelineGroup } from '../api';
-import { useApp, useSelectedDay } from '../app-context';
+import { useApp, useOpenOnly, useSelectedDay } from '../app-context';
 import { Header } from '../components/Layout';
-import { DayTabs, Empty, ErrorState, PostCard, Spinner } from '../components/ui';
-import { shortDay } from '../format';
+import { DayTabs, Empty, ErrorState, OpenOnlyToggle, PostCard, Spinner } from '../components/ui';
 
 export default function TimelinePage() {
   const { meta, user, requireLogin } = useApp();
@@ -12,6 +11,7 @@ export default function TimelinePage() {
   const navigate = useNavigate();
   const [groups, setGroups] = useState<TimelineGroup[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [openOnly, setOpenOnly] = useOpenOnly();
 
   const load = useCallback(() => {
     if (!day) return;
@@ -25,24 +25,30 @@ export default function TimelinePage() {
 
   const open = (id: number) => (user ? navigate(`/posts/${id}`) : requireLogin(`/posts/${id}`));
   const now = new Date().toISOString();
+  const shown = groups && openOnly
+    ? groups.map((g) => ({ ...g, posts: g.posts.filter((p) => p.status === 'OPEN') })).filter((g) => g.posts.length > 0)
+    : groups;
 
   return (
     <>
-      <Header />
+      <Header right={<OpenOnlyToggle value={openOnly} onChange={setOpenOnly} />} />
       <main className="page">
         {meta && day && <DayTabs days={meta.days} value={day} onChange={setDay} />}
-        {day && <h2 className="section-title">시간별 · {shortDay(day)}</h2>}
         {error ? (
           <ErrorState message={error} onRetry={load} />
-        ) : !groups ? (
+        ) : !shown ? (
           <Spinner />
-        ) : groups.length === 0 ? (
+        ) : shown.length === 0 && openOnly && groups!.length > 0 ? (
+          <Empty title="모집중인 팟이 없어요" action={{ to: '/new', label: '모집글 올리기' }}>
+            이 날 올라온 글은 모두 모집이 끝났어요.
+          </Empty>
+        ) : shown.length === 0 ? (
           <Empty title="아직 이 날의 모집글이 없어요" action={{ to: '/new', label: '모집글 올리기' }}>
             먹고 싶은 메뉴가 있다면 먼저 팟을 열어 보세요.
           </Empty>
         ) : (
           <ol className="timeline" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
-            {groups.map((g) => (
+            {shown.map((g) => (
               <li key={g.meetupAt} className={`tl-group${g.meetupAt <= now ? ' past' : ''}`}>
                 <div className="tl-rail" aria-hidden="true">
                   <span className="tl-time">{g.time}</span>

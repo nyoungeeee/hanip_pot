@@ -12,7 +12,13 @@ import CreatePage, { CreateDonePage } from './pages/CreatePage';
 import { EditPostPage, MePage, MyPostsPage, WithdrawPage } from './pages/MePages';
 import { DeniedPage, GuidePage, WelcomePage } from './pages/AuthPages';
 
-/** 로그인+성별 확인 통과 계정만. 비로그인이면 A1 시트, 닉네임 미확정이면 A3로. */
+/** 예전 시간별 주소(/timeline?day=...)는 메인(/)으로 넘긴다. */
+function LegacyTimeline() {
+  const { search } = useLocation();
+  return <Navigate to={{ pathname: '/', search }} replace />;
+}
+
+/** 로그인한 계정만. 비로그인이면 A1 시트, 닉네임 미확정이면 A3로. */
 function Protected() {
   const { user, userLoaded, requireLogin } = useApp();
   const location = useLocation();
@@ -70,8 +76,9 @@ createRoot(document.getElementById('root')!).render(
       <AppProvider>
         <Routes>
           <Route element={<Shell />}>
-            <Route index element={<MenuPage />} />
-            <Route path="timeline" element={<TimelinePage />} />
+            <Route index element={<TimelinePage />} />
+            <Route path="menu" element={<MenuPage />} />
+            <Route path="timeline" element={<LegacyTimeline />} />
             <Route path="guide" element={<GuidePage />} />
             <Route path="auth/denied" element={<DeniedPage />} />
             <Route path="welcome" element={<WelcomePage />} />

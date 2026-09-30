@@ -1,16 +1,13 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { AppConfig, CONFIG } from '../config';
 
-export type GenderCheck = 'female' | 'other' | 'missing';
-
 export interface KakaoIdentity {
   kakaoId: string;
-  gender: GenderCheck;
 }
 
 /**
- * 카카오 OAuth. 토큰은 사용자 정보 조회에만 쓰고 저장하지 않는다.
- * 성별 값은 "카카오 계정에 등록된 성별 정보"일 뿐 신원 인증이 아니다.
+ * 카카오 OAuth. 토큰은 회원번호 조회에만 쓰고 저장하지 않는다.
+ * 동의항목은 요청하지 않는다(기본 정보인 회원번호만 사용).
  */
 @Injectable()
 export class KakaoClient {
@@ -18,15 +15,13 @@ export class KakaoClient {
 
   constructor(@Inject(CONFIG) private readonly cfg: AppConfig) {}
 
-  authorizeUrl(state: string, requestGenderConsent: boolean): string {
+  authorizeUrl(state: string): string {
     const p = new URLSearchParams({
       client_id: this.cfg.kakao.restApiKey,
       redirect_uri: this.cfg.kakao.redirectUri,
       response_type: 'code',
       state,
     });
-    // 성별 제공에 동의하지 않았던 사용자에게 추가 동의를 다시 요청
-    if (requestGenderConsent) p.set('scope', 'gender');
     return `https://kauth.kakao.com/oauth/authorize?${p}`;
   }
 
@@ -53,15 +48,8 @@ export class KakaoClient {
       signal: AbortSignal.timeout(8000),
     });
     if (!meRes.ok) throw new Error(`kakao user/me ${meRes.status}`);
-    const me = (await meRes.json()) as {
-      id: number;
-      kakao_account?: { has_gender?: boolean; gender_needs_agreement?: boolean; gender?: string };
-    };
-    const account = me.kakao_account ?? {};
-    let gender: GenderCheck = 'missing';
-    if (account.gender === 'female') gender = 'female';
-    else if (account.gender) gender = 'other';
-    return { kakaoId: String(me.id), gender };
+    const me = (await meRes.json()) as { id: number };
+    return { kakaoId: String(me.id) };
   }
 
   /** 앱 연결 해제(탈퇴). 저장된 토큰이 없으므로 Admin 키로 처리한다. */

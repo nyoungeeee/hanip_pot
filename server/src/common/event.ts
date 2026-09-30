@@ -43,8 +43,11 @@ export const POST_RULES = {
   menusMax: 5,
   customMenusMax: 3,
   minuteStep: 10,
+  // 행사 운영 시간 오전 10시~밤 12시(KST). 모임 시각은 10:00~23:50
+  hourStart: 10,
+  hourEnd: 24,
   openPostsPerUser: 10,
 } as const;
 
 // 등록 확인 안내 문구 버전. 문구를 바꾸면 올리고 web/src/copy.ts와 함께 맞춘다.
-export const GUIDELINE_VERSION = '2026-09-29';
+export const GUIDELINE_VERSION = '2026-09-30';

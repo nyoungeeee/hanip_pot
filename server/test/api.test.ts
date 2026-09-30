@@ -13,7 +13,7 @@ const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'hanippot-test-'));
 let server: ChildProcess;
 
 const DAY = '2026-10-03';
-const GV = '2026-09-29';
+const GV = '2026-09-30';
 
 function cookieFrom(res: Response, name: string): string | null {
   for (const c of res.headers.getSetCookie()) {
@@ -24,11 +24,11 @@ function cookieFrom(res: Response, name: string): string | null {
   return null;
 }
 
-async function login(kid: string, gender: 'female' | 'male' | 'none'): Promise<{ cookie: string | null; location: string }> {
+async function login(kid: string): Promise<{ cookie: string | null; location: string }> {
   const r1 = await fetch(`${BASE}/api/auth/kakao/login?returnTo=/new`, { redirect: 'manual' });
   const oauth = cookieFrom(r1, 'hp_oauth')!;
   const state = new URL(r1.headers.get('location')!, BASE).searchParams.get('state')!;
-  const r2 = await fetch(`${BASE}/api/auth/mock/go?state=${state}&kid=${kid}&g=${gender}`, { redirect: 'manual' });
+  const r2 = await fetch(`${BASE}/api/auth/mock/go?state=${state}&kid=${kid}`, { redirect: 'manual' });
   const r3 = await fetch(new URL(r2.headers.get('location')!, BASE), {
     redirect: 'manual',
     headers: { cookie: `hp_oauth=${encodeURIComponent(oauth)}` },
@@ -86,31 +86,22 @@ describe('인증·접근', () => {
     assert.deepEqual((await call('GET', '/me')).json, { user: null });
   });
 
-  test('성별 미제공/다른 값은 세션을 만들지 않는다', async () => {
-    const none = await login('9001', 'none');
-    assert.equal(none.cookie, null);
-    assert.match(none.location, /\/auth\/denied\?reason=missing/);
-    const male = await login('9002', 'male');
-    assert.equal(male.cookie, null);
-    assert.match(male.location, /reason=other/);
-  });
-
-  test('여성 신규 계정은 닉네임 화면으로, 닉네임 중복은 접미사 제안', async () => {
-    const a = await login('1', 'female');
+  test('신규 계정은 닉네임 화면으로, 닉네임 중복은 접미사 제안', async () => {
+    const a = await login('1');
     assert.ok(a.cookie);
     assert.match(a.location, /^\/welcome\?returnTo=%2Fnew/);
     assert.equal((await call('PATCH', '/me', a.cookie, { nickname: '어묵러버' })).status, 200);
-    const b = await login('2', 'female');
+    const b = await login('2');
     const dup = await call('PATCH', '/me', b.cookie, { nickname: '어묵러버' });
     assert.equal(dup.status, 409);
     assert.equal(dup.json.suggestion, '어묵러버2');
     // 두 번째 로그인부터는 returnTo로 바로
-    const again = await login('1', 'female');
+    const again = await login('1');
     assert.equal(again.location, '/new');
   });
 
   test('쓰기 요청은 CSRF 헤더 없으면 거부', async () => {
-    const a = await login('1', 'female');
+    const a = await login('1');
     const r = await call('POST', '/posts', a.cookie, postBody(), { 'x-hanippot': '' });
     assert.equal(r.status, 403);
     const r2 = await call('POST', '/posts', a.cookie, postBody(), { 'X-Hanippot': '1', Origin: 'https://evil.example' });
@@ -124,8 +115,8 @@ describe('모집글', () => {
   let multiId: number;
 
   before(async () => {
-    owner = (await login('1', 'female')).cookie!;
-    other = (await login('2', 'female')).cookie!;
+    owner = (await login('1')).cookie!;
+    other = (await login('2')).cookie!;
   });
 
   test('입력 검증: 과거 시각·잘못된 URL·메뉴 초과·안내 미동의', async () => {
@@ -137,6 +128,10 @@ describe('모집글', () => {
     const six = Object.values(menuIds).slice(0, 6);
     assert.equal((await call('POST', '/posts', owner, postBody({ menuIds: six }))).json.errors.menus, '메뉴는 5개까지 선택할 수 있어요.');
     assert.ok((await call('POST', '/posts', owner, postBody({ time: '13:05' }))).json.errors.time);
+    // 행사 운영 시간(10:00~24:00) 밖은 거부
+    assert.ok((await call('POST', '/posts', owner, postBody({ time: '09:50' }))).json.errors.time);
+    assert.ok((await call('POST', '/posts', owner, postBody({ time: '00:00' }))).json.errors.time);
+    assert.equal((await call('POST', '/posts', owner, postBody({ title: '마지막 시각', time: '23:50' }))).status, 201);
   });
 
   test('두 업체 메뉴를 고른 글은 각 메뉴 아래에 모두, 타임라인에는 한 번만', async () => {
@@ -213,7 +208,7 @@ describe('모집글', () => {
   test('기타 메뉴: 공식 업체명이면 그 업체 아래, 아니면 새 업체로 노출', async () => {
     const r = await call('POST', '/posts', owner, postBody({
       menuIds: [], time: '17:00',
-      customMenus: [{ vendorName: '삼진어묵', name: '어묵고로케', price: 3000 }, { vendorName: '새로운포차', name: '닭꼬치', price: null }],
+      customMenus: [{ vendorName: '삼진어묵', name: '어묵고로케', price: 3000 }, { vendorName: '새로운포차', name: '포차오뎅꼬치', price: null }],
     }));
     assert.equal(r.status, 201);
     const vendors = (await call('GET', `/vendors?day=${DAY}`)).json.vendors as { name: string; isOfficial: boolean; menus: { name: string; image: string | null }[] }[];
@@ -221,18 +216,18 @@ describe('모집글', () => {
     assert.equal(vendors.find((v) => v.name === '새로운포차')?.isOfficial, false);
     // 다른 날에는 기타 메뉴가 보이지 않는다
     const other = (await call('GET', '/vendors?day=2026-10-02')).text;
-    assert.ok(!other.includes('닭꼬치'));
+    assert.ok(!other.includes('포차오뎅꼬치'));
   });
 
   test('탈퇴: 글 숨김, 세션 무효, 재로그인은 새 계정', async () => {
-    const w = await login('777', 'female');
+    const w = await login('777');
     await call('PATCH', '/me', w.cookie, { nickname: '떠날사람' });
     const id = (await call('POST', '/posts', w.cookie, postBody({ title: '탈퇴자글', time: '18:00' }))).json.post.id;
     assert.equal((await call('DELETE', '/me', w.cookie)).status, 200);
     assert.deepEqual((await call('GET', '/me', w.cookie)).json, { user: null });
     assert.ok(!(await call('GET', `/posts/timeline?day=${DAY}`)).text.includes('탈퇴자글'));
     assert.equal((await call('GET', `/posts/${id}`, owner)).status, 404);
-    const again = await login('777', 'female');
+    const again = await login('777');
     assert.match(again.location, /^\/welcome/);
     // 닉네임이 해제되어 다시 쓸 수 있다
     assert.equal((await call('PATCH', '/me', again.cookie, { nickname: '떠날사람' })).status, 200);

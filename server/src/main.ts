@@ -10,6 +10,10 @@ import type { NextFunction, Request, Response } from 'express';
 import { AppModule } from './app.module';
 import { AppConfig, CONFIG } from './config';
 
+// 로컬 개발용 .env(있을 때만). 이미 설정된 환경변수는 덮어쓰지 않는다.
+// node --env-file 옵션은 --watch-path와 같이 쓰면 재시작이 무한 반복돼서(Node 22) 코드에서 읽는다.
+if (fs.existsSync('.env')) process.loadEnvFile('.env');
+
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, { logger: ['log', 'warn', 'error'] });
   const cfg = app.get<AppConfig>(CONFIG);
@@ -58,6 +62,7 @@ async function bootstrap() {
 
   // 정적 리소스: 업체 대표 사진(시드), 사용자 업로드, 프론트 빌드
   app.useStaticAssets(path.join(cfg.seedDir, 'vendor-images'), { prefix: '/media/vendors/', maxAge: '7d' });
+  app.useStaticAssets(path.join(cfg.seedDir, 'menu-images'), { prefix: '/media/menus/', maxAge: '7d' });
   fs.mkdirSync(cfg.uploadDir, { recursive: true });
   app.useStaticAssets(cfg.uploadDir, { prefix: '/uploads/', maxAge: '30d', immutable: true });
   const indexHtml = path.join(cfg.webDist, 'index.html');

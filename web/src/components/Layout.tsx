@@ -32,10 +32,10 @@ export function BottomNav() {
   return (
     <nav className="nav" aria-label="주요 메뉴">
       <div className="nav-inner">
-        <NavLink to="/" end className={({ isActive }) => cls(isActive)}><IconMenu />메뉴별</NavLink>
-        <NavLink to="/timeline" className={({ isActive }) => cls(isActive)}><IconClock />시간별</NavLink>
+        <NavLink to="/" end className={({ isActive }) => cls(isActive)}><IconClock />시간별</NavLink>
+        <NavLink to="/menu" className={({ isActive }) => cls(isActive)}><IconMenu />메뉴별</NavLink>
         <a href="/new" onClick={guard('/new')} className={cls(pathname.startsWith('/new'))}><IconPlus />등록</a>
-        <a href="/me" onClick={guard('/me')} className={cls(pathname.startsWith('/me'))}><IconUser />내정보</a>
+        <a href="/me" onClick={guard('/me')} className={cls(pathname === '/me' || pathname.startsWith('/me/'))}><IconUser />내정보</a>
       </div>
     </nav>
   );
