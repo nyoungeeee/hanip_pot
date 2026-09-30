@@ -31,6 +31,15 @@ cd web && npm ci && npm run dev                                           # :517
 4. 보안 → Client Secret 사용 시 `KAKAO_CLIENT_SECRET`
 5. 앱 키 → **Admin 키** → `KAKAO_ADMIN_KEY` (탈퇴 시 연결 해제 `unlink`에 사용. 액세스 토큰을 저장하지 않기 때문)
 
+### 로컬에서 실제 카카오 로그인 붙여보기
+
+1. 카카오 Developers의 Redirect URI에 `http://localhost:5173/api/auth/kakao/callback`도 등록한다(운영 주소와 같이 둬도 된다).
+2. `cd server && cp .env.local.example .env.local` 후 `KAKAO_REST_API_KEY`(필요하면 `KAKAO_CLIENT_SECRET`, `KAKAO_ADMIN_KEY`)를 넣는다. `.env.local`은 git에 올라가지 않고 `.env`보다 우선한다. `AUTH_MOCK=0`이라 모의 로그인이 꺼진다.
+3. 서버를 다시 켜면 로그에 `카카오 로그인 redirect_uri=...`가 찍힌다. 이 값이 1번에 등록한 주소와 글자까지 같아야 한다.
+4. 로그인이 실패하면 서버 로그의 `카카오 로그인 실패: ... KOE???`로 원인을 본다. 자주 나오는 것: KOE006 Redirect URI 미등록/불일치, KOE101 REST API 키 오류, KOE010 Client Secret 불일치.
+
+모의 로그인으로 돌아가려면 `.env.local`을 지우거나 `AUTH_MOCK=1`로 바꾼다.
+
 로그인 흐름: 인가 코드를 서버에서 토큰으로 바꾼 뒤 `/v2/user/me`의 회원번호(`id`)만 읽고, 계정과 세션(7일)을 만든다. 토큰은 저장하지 않는다. 사용자별로는 회원번호, 닉네임, 가입 시각, 마지막 로그인 시각(`last_login_at`)만 남는다.
 
 > 초기 요구사항의 "카카오 성별 정보로 여성 이용자만 허용"은 2026-09-30에 뺐다. 이제 카카오 로그인만 하면 누구나 상세보기와 등록을 쓸 수 있다.

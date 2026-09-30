@@ -13,7 +13,7 @@ import { longDay } from '../format';
 // ---------------- P1: 내정보 ----------------
 
 export function MePage() {
-  const { user, setUser, toast } = useApp();
+  const { user, signOut, toast } = useApp();
   const navigate = useNavigate();
   const [count, setCount] = useState<number | null>(null);
   const [editing, setEditing] = useState(false);
@@ -24,9 +24,11 @@ export function MePage() {
 
   const logout = async () => {
     await api.logout().catch(() => {});
-    setUser(null);
-    toast('로그아웃했어요.');
+    // 홈으로 먼저 옮긴 뒤 비운다. 순서가 반대면 내정보 화면이 "로그인 필요"로 바뀌며
+    // 로그인 시트(돌아갈 곳 = 내정보)를 띄워서, 다시 로그인하면 이전 화면으로 돌아가 버린다.
     navigate('/', { replace: true });
+    signOut();
+    toast('로그아웃했어요.');
   };
 
   return (
@@ -322,7 +324,7 @@ export function EditPostPage() {
 // ---------------- P6: 탈퇴 ----------------
 
 export function WithdrawPage() {
-  const { setUser, handleAuthError, toast } = useApp();
+  const { signOut, handleAuthError, toast } = useApp();
   const navigate = useNavigate();
   const [agree, setAgree] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -331,12 +333,9 @@ export function WithdrawPage() {
     setBusy(true);
     try {
       await api.withdraw();
-      setUser(null);
-      try {
-        sessionStorage.clear();
-      } catch {}
-      toast('탈퇴가 완료됐어요. 이용해 주셔서 고마워요.');
       navigate('/', { replace: true });
+      signOut();
+      toast('탈퇴가 완료됐어요. 이용해 주셔서 고마워요.');
     } catch (e) {
       if (!handleAuthError(e)) setErr((e as ApiError).message);
     } finally {

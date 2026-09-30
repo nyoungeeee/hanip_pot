@@ -12,6 +12,8 @@ interface Ctx {
   setUser: (u: Me | null) => void;
   /** 로그인 필요 기능 진입 시 A1 바텀시트를 띄운다. */
   requireLogin: (returnTo?: string) => void;
+  /** 로그아웃·탈퇴 후 화면 상태 정리: 로그인 시트 닫기, 작성 중이던 글 지우기, 사용자 비우기 */
+  signOut: () => void;
   /** API 오류가 세션 만료(401)라면 로그인 시트를 띄우고 true */
   handleAuthError: (e: unknown, returnTo?: string) => boolean;
   toast: (msg: string) => void;
@@ -22,13 +24,16 @@ const AppCtx = createContext<Ctx>(null!);
 export const useApp = () => useContext(AppCtx);
 
 const DAY_KEY = 'hp_day';
+/** 등록 화면 입력 유지용. 로그아웃하면 지운다(다음 사람에게 남지 않게). */
+export const DRAFT_KEY = 'hp_draft';
 // 서버가 규칙 값을 빠뜨려도(구버전 서버 등) 화면이 깨지지 않도록 쓰는 기본값
 const RULE_DEFAULTS = { minuteStep: 10, hourStart: 10, hourEnd: 24 };
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<Me | null>(null);
   const [userLoaded, setUserLoaded] = useState(false);
-  const [loginFor, setLoginFor] = useState<string | null>(null);
+  // 로그인 시트는 연 화면(at)에서만 보인다. 다른 화면으로 이동하면 자동으로 사라진다.
+  const [loginFor, setLoginFor] = useState<{ returnTo: string; at: string } | null>(null);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
   const [meta, setMeta] = useState<DaysResponse | null>(null);
   const location = useLocation();
@@ -55,7 +60,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, [refreshUser]);
 
   const requireLogin = useCallback(
-    (returnTo?: string) => setLoginFor(returnTo ?? location.pathname + location.search),
+    (returnTo?: string) => setLoginFor({ returnTo: returnTo ?? location.pathname + location.search, at: location.pathname }),
     [location],
   );
 
@@ -71,20 +76,28 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     [requireLogin],
   );
 
+  const signOut = useCallback(() => {
+    setLoginFor(null);
+    setUser(null);
+    try {
+      sessionStorage.removeItem(DRAFT_KEY);
+    } catch {}
+  }, []);
+
   const toast = useCallback((msg: string) => {
     setToastMsg(msg);
     window.setTimeout(() => setToastMsg((m) => (m === msg ? null : m)), 2400);
   }, []);
 
   const value = useMemo(
-    () => ({ user, userLoaded, refreshUser, setUser, requireLogin, handleAuthError, toast, meta }),
-    [user, userLoaded, refreshUser, requireLogin, handleAuthError, toast, meta],
+    () => ({ user, userLoaded, refreshUser, setUser, requireLogin, signOut, handleAuthError, toast, meta }),
+    [user, userLoaded, refreshUser, requireLogin, signOut, handleAuthError, toast, meta],
   );
 
   return (
     <AppCtx.Provider value={value}>
       {children}
-      {loginFor !== null && <LoginSheet returnTo={loginFor} onClose={() => setLoginFor(null)} />}
+      {loginFor && loginFor.at === location.pathname && <LoginSheet returnTo={loginFor.returnTo} onClose={() => setLoginFor(null)} />}
       {toastMsg && <div className="toast" role="status">{toastMsg}</div>}
     </AppCtx.Provider>
   );

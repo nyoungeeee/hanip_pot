@@ -40,14 +40,14 @@ export class KakaoClient {
       body,
       signal: AbortSignal.timeout(8000),
     });
-    if (!tokenRes.ok) throw new Error(`kakao token ${tokenRes.status}`);
+    if (!tokenRes.ok) throw new Error(`kakao token ${tokenRes.status} ${await kakaoError(tokenRes)}`);
     const { access_token } = (await tokenRes.json()) as { access_token: string };
 
     const meRes = await fetch('https://kapi.kakao.com/v2/user/me', {
       headers: { Authorization: `Bearer ${access_token}` },
       signal: AbortSignal.timeout(8000),
     });
-    if (!meRes.ok) throw new Error(`kakao user/me ${meRes.status}`);
+    if (!meRes.ok) throw new Error(`kakao user/me ${meRes.status} ${await kakaoError(meRes)}`);
     const me = (await meRes.json()) as { id: number };
     return { kakaoId: String(me.id) };
   }
@@ -74,5 +74,15 @@ export class KakaoClient {
       this.log.warn(`카카오 연결 해제 요청 오류: ${(e as Error).message}`);
       return false;
     }
+  }
+}
+
+/** 카카오 오류 응답에서 원인 코드만 뽑는다(예: KOE006 = redirect_uri 불일치, KOE010 = client_secret 불일치). */
+async function kakaoError(res: Response): Promise<string> {
+  try {
+    const j = (await res.json()) as { error?: string; error_code?: string; error_description?: string; code?: number; msg?: string };
+    return [j.error_code, j.error, j.error_description, j.code, j.msg].filter((x) => x !== undefined && x !== '').join(' ');
+  } catch {
+    return '';
   }
 }

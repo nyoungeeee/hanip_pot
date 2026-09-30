@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router';
 import { api, ApiError, PostDetail } from '../api';
-import { useApp } from '../app-context';
+import { useApp, DRAFT_KEY } from '../app-context';
 import { COPY } from '../copy';
 import { Header } from '../components/Layout';
 import {
@@ -12,7 +12,6 @@ import { Empty, Spinner, Thumb } from '../components/ui';
 import { longDay, menuSubLine } from '../format';
 import { IconCheck } from '../components/Icons';
 
-const DRAFT_KEY = 'hp_draft';
 
 function loadDraft(fallbackDay: string): Draft {
   try {

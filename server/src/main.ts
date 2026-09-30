@@ -10,9 +10,11 @@ import type { NextFunction, Request, Response } from 'express';
 import { AppModule } from './app.module';
 import { AppConfig, CONFIG } from './config';
 
-// 로컬 개발용 .env(있을 때만). 이미 설정된 환경변수는 덮어쓰지 않는다.
+// 로컬 개발용 환경변수 파일(있을 때만). 이미 설정된 값은 덮어쓰지 않으므로 먼저 읽은 파일이 우선한다.
+//   .env.local  카카오 키 등 비밀값(git에 올리지 않음)
+//   .env        공용 개발 설정(git에 있음)
 // node --env-file 옵션은 --watch-path와 같이 쓰면 재시작이 무한 반복돼서(Node 22) 코드에서 읽는다.
-if (fs.existsSync('.env')) process.loadEnvFile('.env');
+for (const f of ['.env.local', '.env']) if (fs.existsSync(f)) process.loadEnvFile(f);
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, { logger: ['log', 'warn', 'error'] });
@@ -82,6 +84,10 @@ async function bootstrap() {
   app.enableShutdownHooks();
   await app.listen(cfg.port, '0.0.0.0');
   new Logger('Bootstrap').log(`listening :${cfg.port} (${cfg.production ? 'production' : 'dev'}${cfg.authMock ? ', AUTH_MOCK' : ''})`);
+  if (!cfg.authMock) {
+    if (!cfg.kakao.restApiKey) new Logger('Bootstrap').warn('KAKAO_REST_API_KEY 없음: 카카오 로그인이 실패한다(server/.env.local 확인)');
+    else new Logger('Bootstrap').log(`카카오 로그인 redirect_uri=${cfg.kakao.redirectUri}`);
+  }
 }
 
 bootstrap().catch((e) => {

@@ -2,6 +2,7 @@ node_modules
 dist
 dist-test
 .env
+.env.local
 backups
 server/.data
 server/.uploads
