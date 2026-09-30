@@ -5,7 +5,7 @@ import { useApp } from '../app-context';
 import { COPY } from '../copy';
 import { Header } from '../components/Layout';
 import { IconLock } from '../components/Icons';
-import { Empty, ErrorState, Spinner, StatusBadge, Thumb } from '../components/ui';
+import { Empty, ErrorState, Spinner, StatusBadge, Thumb, InfoList, sentences } from '../components/ui';
 import { longDay, menuSubLine } from '../format';
 
 export default function PostDetailPage() {
@@ -89,7 +89,10 @@ export default function PostDetailPage() {
 
             {post.status === 'OPEN' && post.openChatUrl ? (
               <>
-                <div className="notice" style={{ marginBottom: 12 }}>{COPY.detailEtiquette}</div>
+                <InfoList
+                  style={{ marginBottom: 12 }}
+                  items={sentences(COPY.detailEtiquette).map((t) => ({ text: t, warn: t.includes('삼가') }))}
+                />
                 <a className="btn primary" href={post.openChatUrl} target="_blank" rel="noopener noreferrer">
                   오픈카톡으로 이동
                 </a>

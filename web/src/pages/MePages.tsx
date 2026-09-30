@@ -3,11 +3,12 @@ import { Link, useNavigate, useParams } from 'react-router';
 import { api, ApiError, PostDetail, PostStatus } from '../api';
 import { useApp } from '../app-context';
 import { Header } from '../components/Layout';
-import { IconChevron, IconDoc, IconHelp, IconLogout, IconPencil } from '../components/Icons';
+import { IconChat, IconChevron, IconDoc, IconHelp, IconLogout, IconPencil } from '../components/Icons';
 import {
   CatalogGate, DetailsForm, Draft, FieldErrors, mapServerErrors, MenuPicker, toBody, validateDetails, validateMenus,
 } from '../components/PostForm';
-import { Dialog, Empty, ErrorState, Sheet, Spinner, StatusBadge, Thumb } from '../components/ui';
+import { Dialog, Empty, ErrorState, Sheet, Spinner, StatusBadge, Thumb, InfoList } from '../components/ui';
+import { CONTACT_URL } from '../copy';
 import { longDay } from '../format';
 
 // ---------------- P1: 내정보 ----------------
@@ -45,6 +46,9 @@ export function MePage() {
         <nav className="list-menu">
           <Link to="/me/posts"><span className="ic"><IconDoc /></span><span className="grow">내 모집글</span>{count !== null && <span className="count">{count}건</span>}<IconChevron /></Link>
           <Link to="/guide"><span className="ic"><IconHelp /></span><span className="grow">이용 안내</span><IconChevron /></Link>
+          <a href={CONTACT_URL} target="_blank" rel="noopener noreferrer">
+            <span className="ic"><IconChat /></span><span className="grow">운영자에게 문의<span className="sub">카카오톡 오픈채팅으로 연결돼요</span></span><IconChevron />
+          </a>
           <button type="button" onClick={logout}><span className="ic"><IconLogout /></span><span className="grow">로그아웃</span><IconChevron /></button>
         </nav>
         <Link to="/me/withdraw" className="withdraw-link">회원 탈퇴</Link>
@@ -73,8 +77,9 @@ function NicknameSheet({ onClose }: { onClose: () => void }) {
   );
 }
 
-export function NicknameForm({ initial, cta, onSaved, onAuthError }: {
+export function NicknameForm({ initial, cta, onSaved, onAuthError, extraInfo }: {
   initial: string; cta: string; onSaved: (u: NonNullable<ReturnType<typeof useApp>['user']>) => void; onAuthError: (e: unknown) => boolean;
+  extraInfo?: string;
 }) {
   const [value, setValue] = useState(initial);
   const [err, setErr] = useState<string | null>(null);
@@ -100,8 +105,15 @@ export function NicknameForm({ initial, cta, onSaved, onAuthError }: {
     <form onSubmit={save}>
       <div className="field">
         <input className="input" aria-label="닉네임" value={value} maxLength={12} onChange={(e) => setValue(e.target.value)} aria-invalid={!!err} />
-        <span className="hint">한글·영문·숫자·_ 2~12자. 모집글 상세에서 다른 이용자에게 보여요.</span>
-        {err && <span className="err" role="alert">{err}</span>}
+        <InfoList
+          items={[
+            err && { text: err, warn: true },
+            '한글·영문·숫자·_ 2~12자로 입력할 수 있어요.',
+            '다른 이용자가 쓰는 닉네임은 쓸 수 없어요.',
+            '모집글 상세에서 다른 이용자에게 보여요.',
+            extraInfo,
+          ]}
+        />
       </div>
       <button className="btn primary" disabled={busy || !value.trim()}>{cta}</button>
     </form>
@@ -191,7 +203,7 @@ export function MyPostsPage() {
                     <button type="button" className="link-btn" onClick={() => setConfirm({ kind: 'cancel', post: p })}>목록에서 내리기(취소)</button>
                   </div>
                 )}
-                {p.status === 'CANCELLED' && <div className="small muted" style={{ marginTop: 6 }}>다른 이용자에게는 보이지 않아요.</div>}
+                {p.status === 'CANCELLED' && <InfoList style={{ marginTop: 10 }} items={['취소한 글은 다른 이용자에게 보이지 않아요.']} />}
               </article>
             ))}
           </div>
@@ -304,10 +316,10 @@ export function EditPostPage() {
                     {draft.customs.map((c) => <figure key={c.key}><Thumb src={c.imageUrl} size={28} /><figcaption>{c.name}</figcaption></figure>)}
                   </div>
                 )}
-                {!menuEdit && errors.menus && <span className="err">{errors.menus}</span>}
+                {!menuEdit && <InfoList items={[errors.menus && { text: errors.menus, warn: true }]} />}
               </div>
               <DetailsForm draft={draft} setDraft={setDraft} rules={meta.rules} days={meta.days} errors={errors} />
-              {err && <div className="error-box" role="alert">{err}</div>}
+              <InfoList style={{ margin: '10px 0 12px' }} items={[err && { text: err, warn: true }]} />
               <button type="button" className="btn primary" onClick={save} disabled={busy}>수정 완료</button>
               <div className="center" style={{ marginTop: 8 }}>
                 <button type="button" className="link-btn" onClick={() => setCancelOpen(true)}>모집 취소</button>
@@ -347,16 +359,20 @@ export function WithdrawPage() {
       <Header back="/me" title="회원 탈퇴" />
       <main className="page">
         <h2 className="center" style={{ fontSize: 19, fontWeight: 600, margin: '24px 0 10px' }}>회원 탈퇴 확인</h2>
-        <p className="center muted" style={{ marginBottom: 20 }}>탈퇴하면 모집 중인 글이 목록에서<br />숨겨지고 카카오 계정 연결이 해제돼요.</p>
-        <div className="notice" style={{ marginBottom: 18 }}>
-          <p>· 작성한 모집글은 모두 공개 목록에서 숨겨지고, 모집중인 글은 취소돼요.</p>
-          <p>· 한입팟과 카카오 계정의 연결이 해제돼요. 다시 로그인하면 새 계정으로 시작해요.</p>
-        </div>
+        <p className="center muted" style={{ marginBottom: 20 }}>탈퇴하기 전에 아래 내용을 확인해 주세요.</p>
+        <InfoList
+          style={{ marginBottom: 18 }}
+          items={[
+            { text: '작성한 모집글은 모두 공개 목록에서 숨겨지고, 모집중인 글은 취소돼요.', warn: true },
+            '한입팟과 카카오 계정의 연결이 해제돼요.',
+            { text: '다시 로그인하면 새 계정으로 시작해요. 이전 글과 닉네임은 되돌릴 수 없어요.', warn: true },
+          ]}
+        />
         <label className="check" style={{ marginBottom: 18 }}>
           <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} />
           안내 내용을 모두 확인했으며, 이에 동의합니다.
         </label>
-        {err && <div className="error-box" role="alert">{err}</div>}
+        <InfoList style={{ margin: '10px 0 12px' }} items={[err && { text: err, warn: true }]} />
         <div className="btn-row">
           <button type="button" className="btn outline" onClick={() => navigate('/me')}>돌아가기</button>
           <button type="button" className="btn primary" disabled={!agree || busy} onClick={go}>탈퇴하기</button>

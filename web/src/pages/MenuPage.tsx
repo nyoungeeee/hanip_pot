@@ -4,7 +4,7 @@ import { api, MenuWithCounts, PostSummary, Vendor } from '../api';
 import { useApp, useOpenOnly, useSelectedDay } from '../app-context';
 import { Header } from '../components/Layout';
 import { IconChevron } from '../components/Icons';
-import { byVendor, DayTabs, ErrorState, MenuPostCard, OpenOnlyToggle, SearchBox, Spinner, Thumb, VendorFilter } from '../components/ui';
+import { byVendor, DayTabs, ErrorState, MenuPostCard, OpenOnlyToggle, SearchBox, Spinner, Thumb, VendorFilter, InfoList } from '../components/ui';
 import { filterVendors, won } from '../format';
 
 function MenuBadge({ m }: { m: MenuWithCounts }) {
@@ -112,9 +112,10 @@ export default function MenuPage() {
                 })}
               </section>
             ))}
-            <p className="small muted center" style={{ marginTop: 8 }}>
-              일부 사진은 업체 대표 이미지라 메뉴와 다를 수 있어요. 가격은 현장에서 달라질 수 있어요.
-            </p>
+            <InfoList
+              style={{ marginTop: 4 }}
+              items={['일부 사진은 업체 대표 이미지라 메뉴와 다를 수 있어요.', '가격은 현장에서 달라질 수 있어요.']}
+            />
           </>
         )}
       </main>

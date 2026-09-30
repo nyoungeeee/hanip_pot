@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router';
 import type { MenuRef, PostStatus, PostSummary } from '../api';
 import { menuLine } from '../format';
-import { IconChevron, IconClose, IconImage, IconSearch } from './Icons';
+import { IconAlert, IconChevron, IconClose, IconImage, IconSearch } from './Icons';
 
 export function StatusBadge({ status }: { status: PostStatus }) {
   if (status === 'OPEN') return <span className="badge open">모집중</span>;
@@ -226,4 +226,33 @@ export function VendorFilter({ vendors, selected, onChange }: {
 export function byVendor<V extends { id: number }>(vendors: V[], selected: number[]): V[] {
   const active = selected.filter((id) => vendors.some((v) => v.id === id));
   return active.length ? vendors.filter((v) => active.includes(v.id)) : vendors;
+}
+
+/** 안내 한 줄. warn이면 빨간색(주의·오류). */
+export type InfoItem = React.ReactNode | { text: React.ReactNode; warn?: boolean };
+
+/**
+ * 안내 문구 묶음: 회색 상자 안에 줄마다 느낌표 아이콘.
+ * 빈 값(false/null/'')은 건너뛰므로 오류 메시지를 조건부로 끼워 넣을 수 있다.
+ */
+export function InfoList({ items, style }: { items: InfoItem[]; style?: React.CSSProperties }) {
+  const rows = items
+    .filter((it) => it !== false && it !== null && it !== undefined && it !== '')
+    .map((it) => (typeof it === 'object' && it !== null && 'text' in it ? it : { text: it as React.ReactNode, warn: false }));
+  if (!rows.length) return null;
+  return (
+    <ul className="info-list" style={style}>
+      {rows.map((r, i) => (
+        <li key={i} className={r.warn ? 'warn' : undefined} role={r.warn ? 'alert' : undefined}>
+          <IconAlert />
+          <span>{r.text}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/** 문단을 문장 단위 줄로 나눈다("…요." 뒤에서 끊음). */
+export function sentences(text: string): string[] {
+  return text.split(/(?<=[.!?])\s+/).map((s) => s.trim()).filter(Boolean);
 }

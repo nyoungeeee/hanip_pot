@@ -3,7 +3,7 @@ import { api, ApiError, MenuRef, Rules, Vendor } from '../api';
 import { useApp } from '../app-context';
 import { filterVendors, matchesQuery, nearestSlot, toMeetupIso, won } from '../format';
 import { IconCheck, IconClose, IconImage } from './Icons';
-import { byVendor, SearchBox, Sheet, Spinner, Thumb, VendorFilter } from './ui';
+import { byVendor, InfoList, SearchBox, Sheet, Spinner, Thumb, VendorFilter } from './ui';
 
 export interface CustomDraft {
   key: string;
@@ -106,7 +106,13 @@ export function MenuPicker({ draft, setDraft, vendors, extraMenus, rules, error 
 
   return (
     <div>
-      <p className="small muted" style={{ marginBottom: 10 }}>여러 업체의 메뉴를 함께 고를 수 있어요. (최대 {rules.menusMax}개)</p>
+      <InfoList
+        style={{ marginBottom: 12 }}
+        items={[
+          `여러 업체의 메뉴를 함께 고를 수 있어요. 최대 ${rules.menusMax}개까지 골라 주세요.`,
+          "목록에 없는 메뉴는 아래 '기타 메뉴 추가'로 직접 넣을 수 있어요.",
+        ]}
+      />
       {(refs.length > 0 || draft.customs.length > 0) && (
         <div className="selected-chips" style={{ marginBottom: 12 }}>
           {refs.map((m) => (
@@ -125,7 +131,7 @@ export function MenuPicker({ draft, setDraft, vendors, extraMenus, rules, error 
           ))}
         </div>
       )}
-      {error && <div className="error-box" role="alert">{error}</div>}
+      <InfoList style={{ margin: '10px 0 12px' }} items={[error && { text: error, warn: true }]} />
 
       <SearchBox value={query} onChange={setQuery} />
       <VendorFilter vendors={vendors} selected={vendorIds} onChange={setVendorIds} />
@@ -155,7 +161,6 @@ export function MenuPicker({ draft, setDraft, vendors, extraMenus, rules, error 
       <button type="button" className="btn outline" disabled={full || draft.customs.length >= rules.customMenusMax} onClick={() => setCustomOpen(true)}>
         + 기타 메뉴 추가
       </button>
-      <p className="small muted center" style={{ marginTop: 6 }}>목록에 없는 메뉴는 직접 추가할 수 있어요.</p>
       {customOpen && (
         <CustomMenuSheet
           onClose={() => setCustomOpen(false)}
@@ -239,9 +244,9 @@ function CustomMenuSheet({ onClose, onAdd }: { onClose: () => void; onAdd: (c: C
           )}
           <input type="file" accept="image/jpeg,image/png,image/webp,image/heic" onChange={(e) => pick(e.target.files?.[0])} aria-label="메뉴 사진 선택" />
         </label>
-        <span className="hint">직접 찍은 사진만 올려 주세요. 사진이 없으면 기본 이미지 없이 표시돼요.</span>
+        <InfoList items={['직접 찍은 사진만 올려 주세요.', '사진이 없으면 기본 이미지 없이 표시돼요.']} />
       </div>
-      {err && <div className="error-box" role="alert">{err}</div>}
+      <InfoList style={{ margin: '10px 0 12px' }} items={[err && { text: err, warn: true }]} />
       <button type="button" className="btn primary" onClick={submit} disabled={uploading}>메뉴 추가하기</button>
     </Sheet>
   );
@@ -294,7 +299,7 @@ export function DetailsForm({ draft, setDraft, rules, days, errors }: {
             {minutes.map((m) => <option key={m} value={m}>{m}분</option>)}
           </select>
         </div>
-        {errors.time ? <span className="err">{errors.time}</span> : <span className="hint">행사 운영 시간 오전 10시~밤 12시 안에서 골라 주세요.</span>}
+        <InfoList items={[errors.time && { text: errors.time, warn: true }, '행사 운영 시간(오전 10시~밤 12시) 안에서 골라 주세요.']} />
       </div>
       <div className="field">
         <span className="label">희망 인원<span className="req">*</span></span>
@@ -303,29 +308,41 @@ export function DetailsForm({ draft, setDraft, rules, days, errors }: {
           <span aria-live="polite">{draft.targetPeople}명</span>
           <button type="button" aria-label="인원 늘리기" disabled={draft.targetPeople >= rules.peopleMax} onClick={() => set('targetPeople')(draft.targetPeople + 1)}>+</button>
         </div>
-        <span className="hint">본인을 포함한 희망 인원이에요. 실제 참여 인원은 오픈카톡에서 확인해 주세요.</span>
-        {errors.targetPeople && <span className="err">{errors.targetPeople}</span>}
+        <InfoList
+          items={[
+            errors.targetPeople && { text: errors.targetPeople, warn: true },
+            '본인을 포함한 희망 인원이에요.',
+            '실제 참여 인원은 오픈카톡에서 확인해 주세요.',
+          ]}
+        />
       </div>
       <div className="field">
         <label htmlFor="f-title">제목<span className="req">*</span></label>
         <input id="f-title" className="input" value={draft.title} maxLength={rules.titleMax + 10} aria-invalid={!!errors.title}
           onChange={(e) => set('title')(e.target.value)} placeholder="예) 삼진어묵한상 같이 드실 분" />
         <div className="counter">{[...draft.title].length}/{rules.titleMax}</div>
-        {errors.title && <span className="err">{errors.title}</span>}
+        <InfoList items={[errors.title && { text: errors.title, warn: true }]} />
       </div>
       <div className="field">
         <label htmlFor="f-desc">내용<span className="req">*</span></label>
         <textarea id="f-desc" className="textarea" value={draft.description} aria-invalid={!!errors.description}
           onChange={(e) => set('description')(e.target.value)} placeholder="어떤 분과 어떻게 나눠 먹고 싶은지 적어 주세요. 만날 장소는 오픈카톡에서 정해 주세요." />
         <div className="counter">{[...draft.description].length}/{rules.descriptionMax}</div>
-        {errors.description && <span className="err">{errors.description}</span>}
+        <InfoList
+          items={[errors.description && { text: errors.description, warn: true }, '만날 장소는 적지 말고 오픈카톡에서 정해 주세요.']}
+        />
       </div>
       <div className="field">
         <label htmlFor="f-url">오픈카톡 링크<span className="req">*</span></label>
         <input id="f-url" className="input" type="url" inputMode="url" autoCapitalize="off" autoCorrect="off" value={draft.openChatUrl}
           aria-invalid={!!errors.openChatUrl} onChange={(e) => set('openChatUrl')(e.target.value)} placeholder="https://open.kakao.com/o/..." />
-        <span className="hint">이 모집글 전용 오픈채팅방 링크를 넣어 주세요. 로그인한 이용자에게만 보여요.</span>
-        {errors.openChatUrl && <span className="err">{errors.openChatUrl}</span>}
+        <InfoList
+          items={[
+            errors.openChatUrl && { text: errors.openChatUrl, warn: true },
+            '이 모집글 전용 오픈채팅방 링크를 넣어 주세요.',
+            '링크는 로그인한 이용자에게만 보여요.',
+          ]}
+        />
       </div>
     </div>
   );
@@ -338,7 +355,7 @@ export function mapServerErrors(e: unknown): FieldErrors | null {
 
 export function CatalogGate({ children }: { children: (vendors: Vendor[]) => React.ReactNode }) {
   const { vendors, error } = useCatalog();
-  if (error) return <div className="error-box">{error}</div>;
+  if (error) return <InfoList items={[{ text: error, warn: true }]} />;
   if (!vendors) return <Spinner />;
   return <>{children(vendors)}</>;
 }

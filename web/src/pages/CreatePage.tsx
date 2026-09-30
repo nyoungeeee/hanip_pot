@@ -8,7 +8,7 @@ import {
   CatalogGate, DetailsForm, Draft, emptyDraft, FieldErrors, mapServerErrors, MenuPicker, selectedRefs, toBody,
   validateDetails, validateMenus,
 } from '../components/PostForm';
-import { Empty, Spinner, Thumb } from '../components/ui';
+import { Empty, Spinner, Thumb, InfoList, sentences } from '../components/ui';
 import { longDay, menuSubLine } from '../format';
 import { IconCheck } from '../components/Icons';
 
@@ -124,15 +124,16 @@ export default function CreatePage() {
               {step === 3 && (
                 <>
                   <Summary draft={draft} vendors={vendors} />
-                  <div className="notice" style={{ margin: '14px 0 10px' }}>
-                    <strong style={{ display: 'block', marginBottom: 6, color: 'var(--brand-ink)' }}>꼭 확인해 주세요</strong>
-                    {COPY.guideline.map((p) => <p key={p}>{p}</p>)}
-                  </div>
+                  <h3 className="info-title">꼭 확인해 주세요</h3>
+                  <InfoList
+                    style={{ marginBottom: 12 }}
+                    items={COPY.guideline.flatMap(sentences).map((t) => ({ text: t, warn: t.includes('대신하지 않아요') }))}
+                  />
                   <label className="check">
                     <input type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} />
                     {COPY.guidelineCheck}
                   </label>
-                  {submitError && <div className="error-box" role="alert" style={{ marginTop: 10 }}>{submitError}</div>}
+                  <InfoList style={{ margin: '10px 0 12px' }} items={[submitError && { text: submitError, warn: true }]} />
                   <div className="sticky-cta">
                     <button type="button" className="btn primary" disabled={!agreed || submitting} onClick={submit}>
                       {submitting ? '등록하는 중…' : '모집글 등록하기'}

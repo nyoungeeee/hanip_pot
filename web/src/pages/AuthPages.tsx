@@ -4,7 +4,7 @@ import { useApp } from '../app-context';
 import { COPY } from '../copy';
 import { Header } from '../components/Layout';
 import { IconLock, IconUser } from '../components/Icons';
-import { Spinner } from '../components/ui';
+import { Spinner, InfoList, sentences } from '../components/ui';
 import { NicknameForm } from './MePages';
 
 function safeReturn(v: string | null): string {
@@ -59,7 +59,7 @@ export function WelcomePage() {
       <main className="page" style={{ paddingTop: 28 }}>
         <div className="icon-circle" style={{ width: 64, height: 64 }}><IconUser size={26} /></div>
         <h2 className="center" style={{ fontSize: 20, fontWeight: 600, marginBottom: 8 }}>어떻게 불러드릴까요?</h2>
-        <p className="center muted" style={{ marginBottom: 22 }}>한입팟에서 사용할 닉네임이에요. 모집글 상세에서 다른 이용자에게 보여요.</p>
+        <p className="center muted" style={{ marginBottom: 22 }}>한입팟에서 사용할 닉네임이에요.</p>
         <NicknameForm
           initial={user.nickname}
           cta="시작하기"
@@ -68,8 +68,8 @@ export function WelcomePage() {
             navigate(returnTo, { replace: true });
           }}
           onAuthError={(e) => handleAuthError(e, '/')}
+          extraInfo="닉네임은 내정보에서 언제든 바꿀 수 있어요."
         />
-        <p className="small muted center" style={{ marginTop: 14 }}>닉네임은 내정보에서 언제든 바꿀 수 있어요.</p>
       </main>
     </>
   );
@@ -98,11 +98,11 @@ export function GuidePage() {
           </section>
           <section className="card">
             <h3 style={{ fontSize: 15.5, fontWeight: 600, marginBottom: 6 }}>함께 지켜 주세요</h3>
-            {COPY.guideline.map((p) => <p key={p} className="muted" style={{ marginBottom: 6 }}>{p}</p>)}
+            <InfoList items={COPY.guideline.flatMap(sentences)} />
           </section>
           <section className="card">
             <h3 style={{ fontSize: 15.5, fontWeight: 600, marginBottom: 6 }}>로그인과 개인정보</h3>
-            <p className="muted">한입팟은 카카오 로그인으로 계정을 구분해요. 카카오 회원번호 외에 이름·성별·프로필 사진 같은 정보는 받지 않아요.</p>
+            <InfoList items={['한입팟은 카카오 로그인으로 계정을 구분해요.', '카카오 회원번호 외에 이름·성별·프로필 사진 같은 정보는 받지 않아요.']} />
           </section>
         </div>
       </main>

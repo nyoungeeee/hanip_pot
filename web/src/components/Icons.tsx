@@ -19,3 +19,12 @@ export const IconLogout = ({ size = 20 }: P) => svg(size, <><path d="M14 4h5v16h
 export const IconTrash = ({ size = 20 }: P) => svg(size, <><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13" /></>);
 export const IconPencil = ({ size = 14 }: P) => svg(size, <path d="M4 20h4L19 9l-4-4L4 16z" />);
 export const IconSearch = ({ size = 18 }: P) => svg(size, <><circle cx="11" cy="11" r="7" /><path d="m20 20-4-4" /></>, 2);
+/** 채운 원 + 느낌표. 안내 목록(InfoList)의 줄머리 */
+export const IconAlert = ({ size = 16 }: P) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+    <circle cx="12" cy="12" r="10" fill="currentColor" />
+    <path d="M12 7v6.2" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" />
+    <circle cx="12" cy="16.9" r="1.45" fill="#fff" />
+  </svg>
+);
+export const IconChat = ({ size = 20 }: P) => svg(size, <><path d="M4 5h16v11H9l-4 3.5V16H4z" /><path d="M8 9.5h8M8 12.5h5" /></>);

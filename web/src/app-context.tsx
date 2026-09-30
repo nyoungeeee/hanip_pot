@@ -3,7 +3,7 @@ import { useLocation, useSearchParams } from 'react-router';
 import { api, ApiError, DaysResponse, loginUrl, Me } from './api';
 import { COPY } from './copy';
 import { IconLock } from './components/Icons';
-import { Sheet } from './components/ui';
+import { InfoList, Sheet, sentences } from './components/ui';
 
 interface Ctx {
   user: Me | null;
@@ -108,7 +108,7 @@ export function LoginSheet({ returnTo, onClose }: { returnTo: string; onClose: (
     <Sheet onClose={onClose} label="로그인 안내">
       <div className="icon-circle"><IconLock /></div>
       <h2 className="center" style={{ fontSize: 18 }}>{COPY.loginTitle}</h2>
-      <p className="center muted" style={{ fontSize: 14, margin: '8px 0 20px' }}>{COPY.loginBody}</p>
+      <InfoList style={{ margin: '14px 0 18px' }} items={sentences(COPY.loginBody)} />
       <a className="btn kakao" href={loginUrl(returnTo)}>
         <KakaoSymbol /> {COPY.loginCta}
       </a>

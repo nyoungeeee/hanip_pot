@@ -11,3 +11,6 @@ export const COPY = {
   detailEtiquette:
     '함께 먹는 자리인 만큼 서로 존중해 주세요. 주문·결제·정산과 만나는 방법은 오픈카톡에서 참여자끼리 직접 확인해 주세요. 다른 사람을 배제하거나 불편하게 하는 행동은 삼가 주세요.',
 };
+
+/** 운영자 문의용 오픈카톡방(내정보 > 운영자에게 문의) */
+export const CONTACT_URL = 'https://open.kakao.com/o/g6H5a8Pi';
