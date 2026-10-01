@@ -60,7 +60,7 @@ h1, h2, h3, p { margin: 0; }
   font-size: 13px; font-weight: 500;
   padding: calc(var(--safe-t) + 7px) 0 7px;
 }
-.topnotice-track { display: inline-flex; animation: topnotice-flow 18s linear infinite; }
+.topnotice-track { display: inline-flex; animation: topnotice-flow 28s linear infinite; }
 .topnotice-track span { padding-right: 48px; }
 @keyframes topnotice-flow { to { transform: translateX(-50%); } }
 @media (prefers-reduced-motion: reduce) {
