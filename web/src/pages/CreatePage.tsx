@@ -129,12 +129,13 @@ export default function CreatePage() {
                     style={{ marginBottom: 12 }}
                     items={COPY.guideline.flatMap(sentences).map((t) => ({ text: t, warn: t.includes('대신하지 않아요') }))}
                   />
-                  <label className="check">
-                    <input type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} />
-                    {COPY.guidelineCheck}
-                  </label>
                   <InfoList style={{ margin: '10px 0 12px' }} items={[submitError && { text: submitError, warn: true }]} />
+                  {/* 확인 체크는 등록 버튼과 같이 하단에 고정한다. 본문 끝에 두면 버튼에 가려 찾지 못한다. */}
                   <div className="sticky-cta">
+                    <label className="check agree">
+                      <input type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} />
+                      {COPY.guidelineCheck}
+                    </label>
                     <button type="button" className="btn primary" disabled={!agreed || submitting} onClick={submit}>
                       {submitting ? '등록하는 중…' : '모집글 등록하기'}
                     </button>

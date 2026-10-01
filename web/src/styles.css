@@ -294,6 +294,7 @@ h1, h2, h3, p { margin: 0; }
 
 .check { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; padding: 4px 0; }
 .check input { width: 20px; height: 20px; accent-color: var(--brand); margin: 1px 0 0; flex-shrink: 0; }
+.check.agree { font-weight: 600; padding: 2px 2px 10px; }
 
 .pick-row { display: flex; gap: 12px; align-items: center; padding: 10px 12px; border-radius: 10px; width: 100%; border: 1px solid transparent; background: none; text-align: left; }
 .pick-row[aria-checked='true'] { background: var(--brand-soft); border-color: color-mix(in srgb, var(--brand) 30%, transparent); }
