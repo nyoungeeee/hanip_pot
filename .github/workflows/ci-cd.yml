@@ -1,0 +1,78 @@
+# CI: PR과 main 푸시마다 서버 빌드·테스트, 웹 빌드, Docker 이미지 빌드를 확인한다.
+# CD: main에 푸시되고 CI가 통과하면 Cloudflare Tunnel SSH로 서버에 들어가 scripts/deploy.sh를 실행한다.
+#     배포 키는 서버 authorized_keys에서 deploy.sh만 실행하도록 묶여 있다(README 배포 절 참고).
+name: CI/CD
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  server:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: server } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm, cache-dependency-path: server/package-lock.json }
+      - run: npm ci
+      - run: npm run build
+      - run: npm test
+
+  web:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: web } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm, cache-dependency-path: web/package-lock.json }
+      - run: npm ci
+      - run: npm run build
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t hanippot:ci .
+
+  deploy:
+    needs: [server, web, docker]
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: production
+    concurrency: { group: deploy-production, cancel-in-progress: false }
+    env:
+      SSH_HOST: hanip-ssh.b201.kr
+      SSH_USER: b201
+    steps:
+      - name: cloudflared 설치
+        run: |
+          curl -fsSL -o /tmp/cloudflared.deb https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
+          sudo dpkg -i /tmp/cloudflared.deb
+      - name: SSH 설정
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy && chmod 600 ~/.ssh/deploy
+          # 서버 호스트 키 고정(141.164.62.18의 ed25519 키)
+          echo "$SSH_HOST ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBLQLv0V3bKUnYaDgZDXXQ1qLE1NysLozBJTKexrY98t" > ~/.ssh/known_hosts
+      - name: 배포
+        env:
+          CF_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
+          CF_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+        run: |
+          ssh -i ~/.ssh/deploy -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o ServerAliveInterval=20 \
+            -o ProxyCommand="cloudflared access ssh --hostname %h --service-token-id $CF_ID --service-token-secret $CF_SECRET" \
+            "$SSH_USER@$SSH_HOST" deploy
+      - name: 외부 확인
+        run: curl -fsS https://hanip.b201.kr/api/health
