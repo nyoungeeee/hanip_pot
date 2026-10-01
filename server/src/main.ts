@@ -23,6 +23,14 @@ async function bootstrap() {
 
   if (cfg.trustProxy) app.set('trust proxy', 1);
   app.disable('x-powered-by');
+  // Cloudflare에 http로 들어온 요청은 https 주소로 보낸다. 주소는 PUBLIC_URL로 고정(Host 헤더를 믿지 않음).
+  // 컨테이너 헬스체크처럼 프록시를 거치지 않은 요청은 헤더가 없어 그대로 통과한다.
+  if (cfg.production && cfg.publicUrl.startsWith('https://')) {
+    app.use((req: Request, res: Response, next: NextFunction) => {
+      if (req.get('x-forwarded-proto') !== 'http') return next();
+      res.redirect(308, cfg.publicUrl + req.originalUrl);
+    });
+  }
   app.use(
     helmet({
       contentSecurityPolicy: {

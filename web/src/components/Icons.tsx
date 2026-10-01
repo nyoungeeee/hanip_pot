@@ -18,6 +18,7 @@ export const IconHelp = ({ size = 20 }: P) => svg(size, <><circle cx="12" cy="12
 export const IconLogout = ({ size = 20 }: P) => svg(size, <><path d="M14 4h5v16h-5" /><path d="M10 8l-4 4 4 4M6 12h9" /></>);
 export const IconTrash = ({ size = 20 }: P) => svg(size, <><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13" /></>);
 export const IconPencil = ({ size = 14 }: P) => svg(size, <path d="M4 20h4L19 9l-4-4L4 16z" />);
+export const IconRefresh = ({ size = 18 }: P) => svg(size, <><path d="M20 11a8 8 0 1 0-2.3 5.7" /><path d="M20 4v7h-7" /></>, 2);
 export const IconSearch = ({ size = 18 }: P) => svg(size, <><circle cx="11" cy="11" r="7" /><path d="m20 20-4-4" /></>, 2);
 /** 채운 원 + 느낌표. 안내 목록(InfoList)의 줄머리 */
 export const IconAlert = ({ size = 16 }: P) => (

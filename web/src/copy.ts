@@ -14,3 +14,6 @@ export const COPY = {
 
 /** 운영자 문의용 오픈카톡방(내정보 > 운영자에게 문의) */
 export const CONTACT_URL = 'https://open.kakao.com/o/g6H5a8Pi';
+
+/** 상단 흐르는 공지. 비우면('') 배너가 사라진다. */
+export const NOTICE = '지금은 테스트 기간입니다. 10/1(목) 저녁 9시 이후에 모든 데이터가 초기화됩니다.';

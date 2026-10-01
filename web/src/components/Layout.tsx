@@ -1,6 +1,20 @@
 import { Link, NavLink, useLocation, useNavigate } from 'react-router';
 import { useApp } from '../app-context';
-import { IconBack, IconClock, IconMenu, IconPlus, IconUser } from './Icons';
+import { NOTICE } from '../copy';
+import { IconBack, IconClock, IconMenu, IconPlus, IconRefresh, IconUser } from './Icons';
+
+/** 화면 맨 위 공지. 같은 문구를 두 번 이어 붙여 -50%만큼 흘리면 끊김 없이 반복된다. */
+export function NoticeBanner() {
+  if (!NOTICE) return null;
+  return (
+    <div className="topnotice" role="note">
+      <div className="topnotice-track">
+        <span>{NOTICE}</span>
+        <span aria-hidden="true">{NOTICE}</span>
+      </div>
+    </div>
+  );
+}
 
 export function Header({ back, title, right }: { back?: boolean | string; title?: string; right?: React.ReactNode }) {
   const navigate = useNavigate();
@@ -12,7 +26,12 @@ export function Header({ back, title, right }: { back?: boolean | string; title?
   return (
     <header className="header">
       {back && <button type="button" className="back" aria-label="뒤로" onClick={goBack}><IconBack /></button>}
-      {title ? <h1 className="title">{title}</h1> : <Link to="/" className="logo"><img src="/logo-84.png" alt="" width={28} height={28} />한입팟<small>(부락편)</small></Link>}
+      {title ? <h1 className="title">{title}</h1> : (
+        <>
+          <Link to="/" className="logo"><img src="/logo-84.png" alt="" width={28} height={28} />한입팟<small>(부락편)</small></Link>
+          <button type="button" className="refresh" aria-label="새로고침" onClick={() => location.reload()}><IconRefresh /></button>
+        </>
+      )}
       <div className="spacer" />
       {right}
     </header>
