@@ -163,7 +163,7 @@ export function OpenOnlyToggle({ value, onChange }: { value: boolean; onChange: 
 }
 
 /**
- * 업체 필터 칩. 누른 업체만 켜고 끈다(여러 개 가능). 아무것도 안 켜면 전체.
+ * 업체 필터 칩. 한 번에 한 업체만 켠다. 켜진 업체를 다시 누르면 꺼지고 전체로 돌아간다.
  * 한 줄일 때는 옆으로 넘기고(터치 스와이프, 마우스 드래그), 오른쪽 버튼으로 전체를 펼칠 수 있다.
  */
 export function VendorFilter({ vendors, selected, onChange }: {
@@ -174,7 +174,7 @@ export function VendorFilter({ vendors, selected, onChange }: {
   const rowRef = useRef<HTMLDivElement>(null);
   const drag = useRef<{ x: number; left: number; moved: boolean } | null>(null);
   const active = selected.filter((id) => vendors.some((v) => v.id === id));
-  const toggle = (id: number) => onChange(active.includes(id) ? active.filter((x) => x !== id) : [...active, id]);
+  const toggle = (id: number) => onChange(active.includes(id) ? [] : [id]);
 
   // 마우스로 끌어서 넘기기. 터치는 브라우저 기본 스크롤을 쓴다.
   const onPointerDown = (e: React.PointerEvent) => {
