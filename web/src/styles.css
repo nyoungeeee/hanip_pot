@@ -102,7 +102,8 @@ h1, h2, h3, p { margin: 0; }
 .logo { font-size: 21px; font-weight: 900; letter-spacing: -0.03em; color: var(--ink); text-decoration: none; }
 .logo { display: inline-flex; align-items: center; gap: 6px; }
 .logo img { height: 34px; width: auto; flex-shrink: 0; border-radius: 6px; border: var(--outline); }
-.logo img.mark { width: 30px; height: 30px; margin-left: 2px; margin-right: -2px; border-radius: 8px; }
+.logo img.mark { width: 30px; height: 30px; border-radius: 8px; }
+.logo img.inmufe { height: 22px; margin-left: 2px; border-width: 1.5px; border-radius: 4px; }
 .logo span { -webkit-text-stroke: 0.4px var(--ink); }
 .header .back {
   width: 36px; height: 36px; margin-left: -8px; border: 0; background: none; border-radius: 50%;
@@ -114,6 +115,8 @@ h1, h2, h3, p { margin: 0; }
   display: grid; place-items: center; color: var(--ink-2);
 }
 .header .refresh { color: var(--ink); }
+/* 한글 글자가 줄 상자 안에서 살짝 아래에 앉아서, 아이콘도 그만큼 내려 글자 중심에 맞춘다 */
+.header .refresh svg { transform: translateY(1.5px); }
 .header .refresh:active, .header .back:active { background: var(--yellow-press); }
 .header .spacer { flex: 1; }
 
