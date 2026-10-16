@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router';
 import { useApp } from '../app-context';
-import { CONTACT_URL, POPUP_NOTICE } from '../copy';
+import { CONTACT_URL, POPUP_NOTICE, UNOFFICIAL } from '../copy';
 import { useEscape } from './ui';
 import { IconBack, IconChat, IconChevron, IconClock, IconMenu, IconPlus, IconRefresh, IconUser } from './Icons';
 
@@ -54,6 +54,7 @@ export function NoticeModal() {
           <button type="button" className="btn ghost small" onClick={hideToday}>오늘 다시 안 보기</button>
           <button type="button" className="btn primary small" onClick={close} autoFocus>닫기</button>
         </div>
+        <p className="notice-unofficial">※ {UNOFFICIAL}</p>
       </div>
     </div>
   );
