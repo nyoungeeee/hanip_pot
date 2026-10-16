@@ -60,7 +60,7 @@ export function Header({ back, title, right }: { back?: boolean | string; title?
       {back && <button type="button" className="back" aria-label="뒤로" onClick={goBack}><IconBack /></button>}
       {title ? <h1 className="title">{title}</h1> : (
         <>
-          <Link to="/" className="logo" aria-label="INMUFE 한입팟"><img className="mark" src="/logo-84.png?v=2" alt="" width={30} height={30} /><span>한입팟</span><img className="inmufe" src="/inmufe/logo.webp" alt="" width={50} height={22} /></Link>
+          <Link to="/" className="logo" aria-label="한입팟"><img className="mark" src="/logo-84.png?v=2" alt="" width={30} height={30} /><span>한입팟</span></Link>
           <button type="button" className="refresh" aria-label="새로고침" onClick={() => location.reload()}><IconRefresh /></button>
         </>
       )}

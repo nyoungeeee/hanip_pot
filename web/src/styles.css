@@ -103,7 +103,6 @@ h1, h2, h3, p { margin: 0; }
 .logo { display: inline-flex; align-items: center; gap: 6px; }
 .logo img { height: 34px; width: auto; flex-shrink: 0; border-radius: 6px; border: var(--outline); }
 .logo img.mark { width: 30px; height: 30px; border-radius: 8px; }
-.logo img.inmufe { height: 22px; margin-left: 2px; border-width: 1.5px; border-radius: 4px; }
 .logo span { -webkit-text-stroke: 0.4px var(--ink); }
 .header .back {
   width: 36px; height: 36px; margin-left: -8px; border: 0; background: none; border-radius: 50%;
