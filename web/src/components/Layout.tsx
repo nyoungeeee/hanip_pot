@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router';
 import { useApp } from '../app-context';
 import { CONTACT_URL, POPUP_NOTICE } from '../copy';
@@ -12,7 +12,10 @@ const storage = {
   set: (s: Storage, k: string, v: string) => { try { s.setItem(k, v); } catch { /* 저장이 막힌 브라우저는 이번만 닫힌다 */ } },
 };
 
-/** 첫 진입 때 한 번 뜨는 공지. 닫으면 이번 방문 동안, "오늘 다시 안 보기"는 오늘 하루 동안 안 뜬다. */
+/** 헤더의 "공지" 배지가 공지 창을 다시 열 때 보내는 이벤트 */
+const OPEN_NOTICE = 'hanippot:open-notice';
+
+/** 첫 진입 때 한 번 뜨는 공지. 닫으면 이번 방문 동안, "오늘 다시 안 보기"는 오늘 하루 동안 안 뜬다. 헤더 배지로 언제든 다시 연다. */
 export function NoticeModal() {
   const n = POPUP_NOTICE;
   const seenKey = n ? `notice-seen:${n.id}` : '';
@@ -28,6 +31,11 @@ export function NoticeModal() {
     storage.set(localStorage, hideKey, todayKst());
     close();
   };
+  useEffect(() => {
+    const show = () => setOpen(true);
+    window.addEventListener(OPEN_NOTICE, show);
+    return () => window.removeEventListener(OPEN_NOTICE, show);
+  }, []);
   useEscape(close, open);
   if (!n || !open) return null;
   return (
@@ -97,6 +105,9 @@ export function Header({ back, title, right }: { back?: boolean | string; title?
         <>
           <Link to="/" className="logo" aria-label="한입팟"><img className="mark" src="/logo-84.png?v=2" alt="" width={30} height={30} /><span>한입팟</span></Link>
           <button type="button" className="refresh" aria-label="새로고침" onClick={() => location.reload()}><IconRefresh /></button>
+          {POPUP_NOTICE && (
+            <button type="button" className="notice-badge" onClick={() => window.dispatchEvent(new Event(OPEN_NOTICE))}>공지</button>
+          )}
         </>
       )}
       <div className="spacer" />
