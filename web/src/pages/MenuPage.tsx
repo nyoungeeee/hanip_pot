@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { api, MenuWithCounts, PostSummary, Vendor } from '../api';
 import { useApp, useOpenOnly, useSelectedDay } from '../app-context';
-import { EventStrip, Header } from '../components/Layout';
+import { EventStrip, Header, OtherMenuHint } from '../components/Layout';
 import { IconChevron } from '../components/Icons';
 import { byVendor, DayTabs, ErrorState, MenuPostCard, OpenOnlyToggle, SearchBox, Spinner, Thumb, VendorFilter, InfoList } from '../components/ui';
 import { filterVendors, won } from '../format';
@@ -57,6 +57,7 @@ export default function MenuPage() {
       <Header right={<OpenOnlyToggle value={openOnly} onChange={setOpenOnly} />} />
       <main className="page">
         <EventStrip />
+        <OtherMenuHint />
         {meta && day && <DayTabs days={meta.days} value={day} onChange={setDay} />}
         {error ? (
           <ErrorState message={error} onRetry={load} />

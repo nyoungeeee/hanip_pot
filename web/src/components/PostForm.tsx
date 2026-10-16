@@ -110,7 +110,7 @@ export function MenuPicker({ draft, setDraft, vendors, extraMenus, rules, error 
         style={{ marginBottom: 12 }}
         items={[
           `여러 업체의 메뉴를 함께 고를 수 있어요. 최대 ${rules.menusMax}개까지 골라 주세요.`,
-          "목록에 없는 메뉴는 아래 '기타 메뉴 추가'로 직접 넣을 수 있어요.",
+          "목록에 없는 메뉴는 아래 '기타 메뉴 추가'로 직접 넣을 수 있어요. 배달 음식이나 근처 식당 메뉴도 괜찮아요.",
         ]}
       />
       {(refs.length > 0 || draft.customs.length > 0) && (
@@ -226,7 +226,7 @@ function CustomMenuSheet({ onClose, onAdd }: { onClose: () => void; onAdd: (c: C
       <h2>기타 메뉴 추가</h2>
       <div className="field">
         <label htmlFor="c-vendor">업체명<span className="req">*</span></label>
-        <input id="c-vendor" className="input" maxLength={30} value={vendorName} onChange={(e) => setVendorName(e.target.value)} placeholder="업체명을 입력해 주세요." />
+        <input id="c-vendor" className="input" maxLength={30} value={vendorName} onChange={(e) => setVendorName(e.target.value)} placeholder="예: 배달 가게 이름, 근처 식당 이름" />
       </div>
       <div className="field">
         <label htmlFor="c-name">메뉴 이름<span className="req">*</span></label>

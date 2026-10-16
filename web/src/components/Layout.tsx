@@ -30,6 +30,24 @@ export function EventStrip() {
   );
 }
 
+/** 메인 안내: 푸드트럭 메뉴가 아니어도(배달·주변 식당·밥친구) 기타 메뉴로 모집글을 올릴 수 있다. */
+export function OtherMenuHint() {
+  const { user, requireLogin } = useApp();
+  const navigate = useNavigate();
+  const go = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (user) navigate('/new');
+    else requireLogin('/new');
+  };
+  return (
+    <section className="other-hint" aria-label="기타 메뉴 안내">
+      <strong>푸드트럭 메뉴가 아니어도 괜찮아요!</strong>
+      <p>배달 음식을 같이 시켜 먹거나 근처 식당에서 함께 먹을 밥친구를 구할 때도, 모집글의 <b>기타 메뉴 추가</b>로 원하는 메뉴를 직접 넣어 올릴 수 있어요.</p>
+      <a href="/new" onClick={go}>모집글 올리기<IconChevron size={16} /></a>
+    </section>
+  );
+}
+
 export function Header({ back, title, right }: { back?: boolean | string; title?: string; right?: React.ReactNode }) {
   const navigate = useNavigate();
   const goBack = () => {

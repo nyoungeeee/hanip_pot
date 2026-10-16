@@ -130,6 +130,14 @@ h1, h2, h3, p { margin: 0; }
 .event-strip img { width: 44px; height: 44px; border-radius: 10px; border: var(--outline); flex-shrink: 0; }
 .event-strip strong { display: block; font-size: 14px; font-weight: 800; letter-spacing: -0.02em; }
 .event-strip small { display: block; font-size: 12px; color: var(--ink-2); }
+.other-hint {
+  margin-top: 12px; padding: 12px 14px; border-radius: var(--radius);
+  background: var(--yellow-soft); border: 2px dashed var(--ink);
+}
+.other-hint strong { display: block; font-size: 14.5px; font-weight: 800; letter-spacing: -0.02em; color: var(--pink); }
+.other-hint p { font-size: 12.5px; color: var(--ink-2); margin-top: 3px; line-height: 1.55; }
+.other-hint p b { color: var(--ink); font-weight: 700; }
+.other-hint a { display: inline-flex; align-items: center; gap: 2px; margin-top: 6px; font-size: 13px; font-weight: 800; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
 .event-strip .go { margin-left: auto; color: var(--ink); flex-shrink: 0; }
 
 /* ---- badges ---- */

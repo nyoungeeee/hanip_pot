@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { api, TimelineGroup } from '../api';
 import { useApp, useOpenOnly, useSelectedDay } from '../app-context';
-import { EventStrip, Header } from '../components/Layout';
+import { EventStrip, Header, OtherMenuHint } from '../components/Layout';
 import { DayTabs, Empty, ErrorState, OpenOnlyToggle, PostCard, Spinner } from '../components/ui';
 
 export default function TimelinePage() {
@@ -34,6 +34,7 @@ export default function TimelinePage() {
       <Header right={<OpenOnlyToggle value={openOnly} onChange={setOpenOnly} />} />
       <main className="page">
         <EventStrip />
+        <OtherMenuHint />
         {meta && day && <DayTabs days={meta.days} value={day} onChange={setDay} />}
         {error ? (
           <ErrorState message={error} onRetry={load} />
