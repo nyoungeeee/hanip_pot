@@ -55,12 +55,11 @@ export default function PostDetailPage() {
           <Spinner />
         ) : (
           <article>
-            <div className="row" style={{ alignItems: 'flex-start', margin: '4px 0 12px' }}>
-              <h2 className="grow" style={{ fontSize: 19, fontWeight: 600, lineHeight: 1.35 }}>{post.title}</h2>
-              <StatusBadge status={post.status} />
-            </div>
-
             <div className="card" style={{ marginBottom: 14 }}>
+              <div className="detail-title">
+                <h2>{post.title}</h2>
+                <StatusBadge status={post.status} />
+              </div>
               <dl className="kv" style={{ margin: 0 }}>
                 <dt>일시</dt>
                 <dd>{longDay(post.day)} {post.time}</dd>

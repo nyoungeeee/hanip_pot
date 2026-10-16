@@ -3,13 +3,15 @@ import { useApp } from '../app-context';
 import { NOTICE } from '../copy';
 import { IconBack, IconChevron, IconClock, IconMenu, IconPlus, IconRefresh, IconUser } from './Icons';
 
-/** 화면 맨 위 공지. 같은 문구를 두 번 이어 붙여 -50%만큼 흘리면 끊김 없이 반복된다. */
+/** 화면 맨 위 공지. 같은 문구를 네 번 이어 붙여 -50%만큼 흘리면 끊김 없이 반복된다(넓은 화면에서도 빈칸 없이). */
 export function NoticeBanner() {
   if (!NOTICE) return null;
   return (
     <div className="topnotice" role="note">
       <div className="topnotice-track">
         <span>{NOTICE}</span>
+        <span aria-hidden="true">{NOTICE}</span>
+        <span aria-hidden="true">{NOTICE}</span>
         <span aria-hidden="true">{NOTICE}</span>
       </div>
     </div>
