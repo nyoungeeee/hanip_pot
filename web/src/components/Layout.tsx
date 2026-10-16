@@ -1,18 +1,51 @@
+import { useCallback, useState } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router';
 import { useApp } from '../app-context';
-import { NOTICE } from '../copy';
-import { IconBack, IconChevron, IconClock, IconMenu, IconPlus, IconRefresh, IconUser } from './Icons';
+import { CONTACT_URL, POPUP_NOTICE } from '../copy';
+import { useEscape } from './ui';
+import { IconBack, IconChat, IconChevron, IconClock, IconMenu, IconPlus, IconRefresh, IconUser } from './Icons';
 
-/** 화면 맨 위 공지. 같은 문구를 네 번 이어 붙여 -50%만큼 흘리면 끊김 없이 반복된다(넓은 화면에서도 빈칸 없이). */
-export function NoticeBanner() {
-  if (!NOTICE) return null;
+/** 오늘 날짜(한국 시간). "오늘 다시 안 보기" 기준 */
+const todayKst = () => new Date(Date.now() + 9 * 3600_000).toISOString().slice(0, 10);
+const storage = {
+  get: (s: Storage, k: string) => { try { return s.getItem(k); } catch { return null; } },
+  set: (s: Storage, k: string, v: string) => { try { s.setItem(k, v); } catch { /* 저장이 막힌 브라우저는 이번만 닫힌다 */ } },
+};
+
+/** 첫 진입 때 한 번 뜨는 공지. 닫으면 이번 방문 동안, "오늘 다시 안 보기"는 오늘 하루 동안 안 뜬다. */
+export function NoticeModal() {
+  const n = POPUP_NOTICE;
+  const seenKey = n ? `notice-seen:${n.id}` : '';
+  const hideKey = n ? `notice-hide:${n.id}` : '';
+  const [open, setOpen] = useState(() =>
+    !!n && storage.get(sessionStorage, seenKey) !== '1' && storage.get(localStorage, hideKey) !== todayKst(),
+  );
+  const close = useCallback(() => {
+    storage.set(sessionStorage, seenKey, '1');
+    setOpen(false);
+  }, [seenKey]);
+  const hideToday = () => {
+    storage.set(localStorage, hideKey, todayKst());
+    close();
+  };
+  useEscape(close, open);
+  if (!n || !open) return null;
   return (
-    <div className="topnotice" role="note">
-      <div className="topnotice-track">
-        <span>{NOTICE}</span>
-        <span aria-hidden="true">{NOTICE}</span>
-        <span aria-hidden="true">{NOTICE}</span>
-        <span aria-hidden="true">{NOTICE}</span>
+    <div className="overlay" onClick={close}>
+      <div className="dialog notice-modal" role="dialog" aria-modal="true" aria-labelledby="notice-title" onClick={(e) => e.stopPropagation()}>
+        <img src="/logo-84.png?v=2" alt="" width={44} height={44} className="notice-mark" />
+        <h2 id="notice-title">{n.title}</h2>
+        <ul>
+          {n.lines.map((t) => <li key={t}>{t}</li>)}
+        </ul>
+        <p className="notice-closing">{n.closing}</p>
+        <a className="btn outline small notice-contact" href={CONTACT_URL} target="_blank" rel="noopener noreferrer">
+          <IconChat size={18} />운영자에게 의견 보내기
+        </a>
+        <div className="btn-row">
+          <button type="button" className="btn ghost small" onClick={hideToday}>오늘 다시 안 보기</button>
+          <button type="button" className="btn primary small" onClick={close} autoFocus>닫기</button>
+        </div>
       </div>
     </div>
   );

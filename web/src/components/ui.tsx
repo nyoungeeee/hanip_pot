@@ -67,8 +67,9 @@ export function DayTabs({ days, value, onChange }: { days: { date: string; label
   );
 }
 
-function useEscape(onClose: () => void) {
+export function useEscape(onClose: () => void, enabled = true) {
   useEffect(() => {
+    if (!enabled) return;
     const h = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
     window.addEventListener('keydown', h);
     const prev = document.body.style.overflow;
@@ -77,7 +78,7 @@ function useEscape(onClose: () => void) {
       window.removeEventListener('keydown', h);
       document.body.style.overflow = prev;
     };
-  }, [onClose]);
+  }, [onClose, enabled]);
 }
 
 export function Sheet({ onClose, children, label }: { onClose: () => void; children: React.ReactNode; label: string }) {

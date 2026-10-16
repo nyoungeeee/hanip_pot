@@ -15,5 +15,18 @@ export const COPY = {
 /** 운영자 문의용 오픈카톡방(내정보 > 운영자에게 문의) */
 export const CONTACT_URL = 'https://open.kakao.com/o/sEV8aESi';
 
-/** 상단 흐르는 공지. 비우면('') 배너가 사라진다. */
-export const NOTICE = 'INMUFE 한입팟 오픈! 10.17(토)–18(일) 수원 서호 잔디광장 푸드트럭 메뉴, 혼자 왔다면 함께 나눠 먹을 팟을 찾아보세요.';
+/**
+ * 첫 진입 때 한 번 띄우는 공지. null이면 띄우지 않는다.
+ * id를 바꾸면 "오늘 다시 안 보기"를 누른 사람에게도 새 공지로 다시 보인다.
+ */
+export const POPUP_NOTICE: { id: string; title: string; lines: string[]; closing: string } | null = {
+  id: '2026-10-16-preview',
+  title: '한입팟 미리 써보기 기간이에요',
+  lines: [
+    '지금 보이는 모집글과 후기는 테스트 데이터예요.',
+    '10월 17일(토) 오전 10시 전에 모든 데이터를 초기화해요.',
+    '그전까지는 마음껏 글을 올리고 지워 보세요.',
+    '개선할 점이 있으면 운영자에게 알려 주세요.',
+  ],
+  closing: '솔플러들, 잘 먹고 잘 놀아요!',
+};

@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation, useNavigationType } from 'react-router';
 import './styles.css';
 import { AppProvider, useApp } from './app-context';
-import { BottomNav, Header, NoticeBanner } from './components/Layout';
+import { BottomNav, Header, NoticeModal } from './components/Layout';
 import { Empty, Spinner } from './components/ui';
 import MenuPage from './pages/MenuPage';
 import TimelinePage from './pages/TimelinePage';
@@ -82,9 +82,9 @@ function Shell() {
   }, [location.key, location.pathname, navType]);
   return (
     <div className="app">
-      <NoticeBanner />
       <Outlet />
       <BottomNav />
+      <NoticeModal />
     </div>
   );
 }
