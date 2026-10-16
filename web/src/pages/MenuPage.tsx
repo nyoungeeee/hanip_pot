@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router';
 import { api, MenuWithCounts, PostSummary, Vendor } from '../api';
 import { useApp, useOpenOnly, useSelectedDay } from '../app-context';
 import { EventStrip, Header, OtherMenuHint } from '../components/Layout';
-import { IconChevron } from '../components/Icons';
+import { IconChevron, IconPlus } from '../components/Icons';
 import { byVendor, DayTabs, ErrorState, MenuPostCard, OpenOnlyToggle, SearchBox, Spinner, Thumb, VendorFilter, InfoList } from '../components/ui';
 import { filterVendors, won } from '../format';
 
@@ -47,6 +47,19 @@ export default function MenuPage() {
   };
 
   const open = (id: number) => (user ? navigate(`/posts/${id}`) : requireLogin(`/posts/${id}`));
+  // 이 메뉴를 고른 채로 등록 화면 열기. 남이 만든 기타 메뉴는 고를 수 없어 같은 이름으로 복사해 넣는다.
+  const createWith = (m: MenuWithCounts) => {
+    const q = new URLSearchParams(day ? { day } : {});
+    if (m.isOfficial) q.set('pick', String(m.id));
+    else {
+      q.set('pv', m.vendorName);
+      q.set('pn', m.name);
+      if (m.price != null) q.set('pp', String(m.price));
+    }
+    const to = `/new?${q}`;
+    if (user) navigate(to);
+    else requireLogin(to);
+  };
   const byStatus = (vendors ?? [])
     .map((v) => (openOnly ? { ...v, menus: v.menus.filter((m) => m.openCount > 0) } : v))
     .filter((v) => v.menus.length > 0);
@@ -96,10 +109,6 @@ export default function MenuPage() {
                       </button>
                       {isOpen && (
                         <div className="menu-posts" role="region" aria-label={`${m.name} 모집글`}>
-                          <Link className="menu-detail-link" to={`/menus/${m.id}?day=${day}`}>
-                            <span>{m.reviewCount > 0 ? `후기 ${m.reviewCount}개 보기` : '첫 후기 남기기'}</span>
-                            <span className="muted">메뉴 상세</span><IconChevron size={14} />
-                          </Link>
                           {list === 'loading' || !list ? (
                             <div className="empty">불러오는 중…</div>
                           ) : list === 'error' ? (
@@ -112,6 +121,14 @@ export default function MenuPage() {
                               {list.map((p) => <MenuPostCard key={p.id} post={p} menuId={m.id} onOpen={open} />)}
                             </>
                           )}
+                          <div className="menu-actions">
+                            <button type="button" className="btn primary small" onClick={() => createWith(m)}>
+                              <IconPlus size={18} />모집글 올리기
+                            </button>
+                            <Link className="review-btn" to={`/menus/${m.id}?day=${day}`}>
+                              {m.reviewCount > 0 ? <>후기 {m.reviewCount}개 보기</> : '첫 후기 쓰기'}<IconChevron size={14} />
+                            </Link>
+                          </div>
                         </div>
                       )}
                     </div>

@@ -209,30 +209,37 @@ h1, h2, h3, p { margin: 0; }
 .menu-row[aria-expanded='true'] .name { font-weight: 800; }
 .menu-row[aria-expanded='true'] .chev { color: var(--ink); }
 /*
- * 펼친 메뉴의 모집글: 시간별 타임라인처럼 사진 아래(x=42px)에서 내려오는 점선 하나에 항목마다 점을 찍는다.
+ * 펼친 메뉴의 모집글: 시간별 타임라인처럼 사진 아래(x=42px)에서 내려오는 점선 하나에 모집글마다 점을 찍는다.
  * 점선은 영역 전체에 한 줄로 긋고(점선 간격이 끊기지 않게), 마지막 점 아래는 배경색 덮개로 가린다.
- * 항목마다 테두리 두께가 달라 점의 left 값이 다르다(링크 1.5px, 카드 2px, 안내문 0).
+ * 모집글이 없으면 점선을 그리지 않는다. 맨 아래 버튼 줄(등록·후기)은 가지 밖이라 점이 없다.
  */
 .menu-posts { position: relative; background: var(--yellow-soft); padding: 2px 14px 14px 70px; display: grid; gap: 8px; }
 .menu-posts::before { content: ''; position: absolute; left: 41px; top: -14px; bottom: 0; border-left: 2px dashed var(--ink); pointer-events: none; }
 .menu-posts-label { font-size: 12px; color: var(--ink); font-weight: 700; }
-.menu-posts .menu-detail-link::after, .menu-posts .post-card.compact::after {
+.menu-posts:not(:has(> .post-card))::before { display: none; }
+.menu-posts .post-card.compact::after {
   content: ''; position: absolute; top: calc(50% - 5.5px); width: 11px; height: 11px; border-radius: 50%; box-sizing: border-box;
   background: var(--sky); border: 2px solid var(--ink); pointer-events: none;
 }
-.menu-posts .menu-detail-link::after { left: -35px; }
 .menu-posts .post-card.compact::after { left: -35.5px; }
 .menu-posts .post-card.compact.is-closed::after { background: var(--muted-bg); border-color: var(--ink-3); }
-/* 마지막 점 아래 점선 가리기: 마지막 카드, 또는 모집글이 없을 때 링크와 그 아래 안내문 */
-.menu-posts .post-card.compact:last-child::before,
-.menu-posts .menu-detail-link:not(:has(~ .menu-posts-label))::before,
-.menu-posts > .empty::before {
-  content: ''; position: absolute; left: -32px; width: 6px; background: var(--yellow-soft); pointer-events: none;
+/* 마지막 점 아래 점선 가리기(아래 버튼 줄까지). 카드는 영역 안의 유일한 button 자식이라 last-of-type으로 찾는다. */
+.menu-posts > .post-card.compact:last-of-type::before {
+  content: ''; position: absolute; left: -32px; width: 6px; top: 50%; bottom: -200px; background: var(--yellow-soft); pointer-events: none;
 }
-.menu-posts .post-card.compact:last-child::before { top: 50%; bottom: -16px; }
-.menu-posts .menu-detail-link:not(:has(~ .menu-posts-label))::before { top: 50%; bottom: -10px; }
-.menu-posts > .empty { position: relative; }
-.menu-posts > .empty::before { left: -30px; top: -8px; bottom: -14px; }
+.menu-posts { overflow: visible; clip-path: inset(-40px 0 0 0); }
+/* 맨 아래 버튼 줄: 들여쓰기 없이 영역 폭 전체. 모집글 올리기(노랑)와 후기 보기(파랑)를 모집글 카드와 다른 모양으로 */
+.menu-actions {
+  position: relative; z-index: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 4px 0 0 -56px;
+  padding-top: 12px; border-top: 1.5px dashed var(--line-strong);
+}
+.menu-actions .btn { width: 100%; height: 40px; font-size: 13.5px; gap: 4px; }
+.review-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 2px; height: 40px; border-radius: 20px;
+  background: var(--brand-soft); border: 1.5px solid var(--brand); color: var(--brand-ink);
+  font-size: 13.5px; font-weight: 800; text-decoration: none;
+}
+.review-btn:active { background: color-mix(in srgb, var(--brand-soft) 70%, var(--brand)); }
 .post-card.compact { padding: 10px 12px; box-shadow: var(--pop-sm); }
 .post-card:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
 .post-card.compact .ttl { font-size: 14px; }
@@ -527,11 +534,6 @@ h1, h2, h3, p { margin: 0; }
 .seg button { height: 42px; border-radius: 21px; border: var(--outline); background: var(--surface); font-size: 14.5px; font-weight: 700; }
 .seg button[aria-pressed='true'] { background: var(--yellow); box-shadow: var(--pop-sm); font-weight: 800; }
 .review-count { font-size: 11.5px; font-weight: 700; color: var(--brand-ink); margin-top: 2px; }
-.menu-detail-link {
-  position: relative; display: flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: 10px; text-decoration: none;
-  background: var(--surface); border: 1.5px solid var(--ink); font-size: 13px; font-weight: 800; color: var(--ink);
-}
-.menu-detail-link .muted { margin-left: auto; font-size: 12px; font-weight: 600; }
 /* 점선이 사진 아래에서 시작하도록 사진을 점선 위에 그린다 */
 .menu-row .thumb { position: relative; z-index: 1; }
 .detail-menu { text-decoration: none; color: inherit; }

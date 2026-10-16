@@ -33,8 +33,29 @@ export default function CreatePage() {
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (meta && !draft) setDraftState(loadDraft(meta.defaultDay));
-  }, [meta, draft]);
+    if (!meta || draft) return;
+    let d = loadDraft(meta.defaultDay);
+    // 메뉴별 화면의 "모집글 올리기": ?pick=메뉴id(공식) 또는 ?pv=업체&pn=메뉴&pp=가격(기타 메뉴 복사), ?day=
+    // 로그인을 거쳐 돌아와도 남도록 주소로 넘긴다. 반영한 뒤에는 주소에서 지운다.
+    const pick = Number(params.get('pick')) || 0;
+    const pn = params.get('pn')?.trim() ?? '';
+    const pv = params.get('pv')?.trim() ?? '';
+    if (pick || (pn && pv)) {
+      const day = params.get('day');
+      if (day && meta.days.some((x) => x.date === day)) d = { ...d, day };
+      const full = d.menuIds.length + d.customs.length >= meta.rules.menusMax;
+      if (pick && !full && !d.menuIds.includes(pick)) d = { ...d, menuIds: [...d.menuIds, pick] };
+      if (pn && pv && !full && d.customs.length < meta.rules.customMenusMax && !d.customs.some((c) => c.name === pn && c.vendorName === pv)) {
+        const price = (params.get('pp') ?? '').replace(/\D/g, '');
+        d = { ...d, customs: [...d.customs, { key: crypto.randomUUID?.() ?? String(Date.now()), vendorName: pv, name: pn, price, uploadId: null, imageUrl: null }] };
+      }
+      try {
+        sessionStorage.setItem(DRAFT_KEY, JSON.stringify(d));
+      } catch {}
+      setParams({ step: '1' }, { replace: true });
+    }
+    setDraftState(d);
+  }, [meta, draft, params, setParams]);
 
   // 입력 유지: 로그인 만료로 나갔다 오거나 새로고침해도 남도록 세션에 저장
   const setDraft = (f: (d: Draft) => Draft) =>
