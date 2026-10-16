@@ -1,6 +1,7 @@
 # CI: PR과 main 푸시마다 서버 빌드·테스트, 웹 빌드, Docker 이미지 빌드를 확인한다.
 # CD: main에 푸시되고 CI가 통과하면 Cloudflare Tunnel SSH로 서버에 들어가 scripts/deploy.sh를 실행한다.
 #     배포 키는 서버 authorized_keys에서 deploy.sh만 실행하도록 묶여 있다(README 배포 절 참고).
+#     저장소 변수 DEPLOY_ENABLED=true를 넣기 전까지 deploy 잡은 건너뛴다.
 name: CI/CD
 
 on:
@@ -46,13 +47,16 @@ jobs:
 
   deploy:
     needs: [server, web, docker]
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.DEPLOY_ENABLED == 'true'
     runs-on: ubuntu-latest
     environment: production
     concurrency: { group: deploy-production, cancel-in-progress: false }
     env:
-      SSH_HOST: hanip-ssh.b201.kr
+      # 서버 22번 포트는 외부에 열려 있지 않다. Cloudflare Access로 보호한 터널 호스트로 들어간다.
+      # 같은 b201 서버라 춤낫불법(dance)이 쓰는 SSH 호스트와 Access 서비스 토큰을 함께 쓴다.
+      SSH_HOST: dance-ssh.b201.kr
       SSH_USER: b201
+      PUBLIC_URL: https://hanip.b201.kr
     steps:
       - name: cloudflared 설치
         run: |
@@ -64,9 +68,10 @@ jobs:
         run: |
           install -m 700 -d ~/.ssh
           printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy && chmod 600 ~/.ssh/deploy
-          # 서버 호스트 키 고정(141.164.62.18의 ed25519 키)
+          # 서버 호스트 키 고정(b201, ed25519). 다른 서버로 바뀌면 접속을 거부한다.
           echo "$SSH_HOST ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBLQLv0V3bKUnYaDgZDXXQ1qLE1NysLozBJTKexrY98t" > ~/.ssh/known_hosts
       - name: 배포
+        # 배포 키는 서버 authorized_keys에서 command="…/hanippot/scripts/deploy.sh"로 묶여 있어 deploy.sh만 실행된다.
         env:
           CF_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
           CF_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
@@ -75,4 +80,10 @@ jobs:
             -o ProxyCommand="cloudflared access ssh --hostname %h --service-token-id $CF_ID --service-token-secret $CF_SECRET" \
             "$SSH_USER@$SSH_HOST" deploy
       - name: 외부 확인
-        run: curl -fsS https://hanip.b201.kr/api/health
+        # 서버의 deploy.sh가 이미 헬스체크(실패 시 되돌림)를 한다. Cloudflare가 GitHub Actions IP를 봇으로 막아
+        # 403이 날 수 있어, 여기서는 실패해도 경고만 남긴다.
+        continue-on-error: true
+        run: |
+          for _ in $(seq 1 10); do curl -fsS "$PUBLIC_URL/api/health" && exit 0; sleep 3; done
+          echo "::warning::외부에서 $PUBLIC_URL/api/health 확인 실패(Cloudflare 차단일 수 있음). 서버 헬스체크는 통과했다."
+          exit 1

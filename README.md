@@ -78,7 +78,8 @@ Cloudflare를 거친다면 `/api/*`는 캐시하지 않는다. 서버가 모든 
 - 운영: `https://hanip.b201.kr`. 서버(b201)의 `~b201/hanippot`에서 돌고, B201이 쓰는 Cloudflare Tunnel `b201`이 `localhost:3210`으로 넘긴다(Nginx 없음).
 - `.github/workflows/ci-cd.yml`: PR과 main 푸시마다 서버 빌드·테스트, 웹 빌드, Docker 빌드. main에서 모두 통과하면 `deploy` 잡이 서버의 `scripts/deploy.sh`를 실행한다.
 - `scripts/deploy.sh`: 배포 전 백업 → `origin/main`으로 fast-forward → 재빌드 → 헬스체크. 헬스체크 실패 시 직전 커밋으로 되돌린다. 서버에서 직접 실행해도 된다.
-- 접속 경로: Actions → `cloudflared access ssh`(Access 서비스 토큰) → 터널 호스트 `hanip-ssh.b201.kr` → 서버 `localhost:22`. 서버 방화벽(ufw)은 열지 않는다.
+- 접속 경로: Actions → `cloudflared access ssh`(Access 서비스 토큰) → 터널 호스트 `dance-ssh.b201.kr` → 서버 `localhost:22`. 서버 방화벽(ufw)은 열지 않는다. 같은 b201 서버라 춤낫불법(dance)의 SSH 호스트·Access 서비스 토큰을 같이 쓴다(처음 계획한 `hanip-ssh.b201.kr`은 만들지 않았다).
+- 저장소 변수 `DEPLOY_ENABLED=true`일 때만 `deploy` 잡이 돈다. Environment `production`.
 - 배포 키: b201의 `authorized_keys`에 `restrict,command="/home/b201/hanippot/scripts/deploy.sh"`로 등록해 배포 스크립트 외에는 실행할 수 없다.
 - GitHub Secrets: `DEPLOY_SSH_KEY`(배포 키 개인키), `CF_ACCESS_CLIENT_ID`, `CF_ACCESS_CLIENT_SECRET`(Access 서비스 토큰).
 
