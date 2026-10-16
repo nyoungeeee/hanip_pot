@@ -555,3 +555,4 @@ html, body { overflow-x: clip; }
 /* 모집글 상세: 제목은 정보 카드 맨 위, 점선으로 아래 정보와 나눈다 */
 .detail-title { display: flex; gap: 10px; align-items: flex-start; padding-bottom: 12px; margin-bottom: 14px; border-bottom: 1.5px dashed var(--line-strong); }
 .detail-title h2 { flex: 1; min-width: 0; font-size: 18px; font-weight: 700; line-height: 1.35; letter-spacing: -0.02em; word-break: keep-all; overflow-wrap: anywhere; }
+.detail-desc { white-space: pre-wrap; font-size: 14.5px; line-height: 1.6; margin-top: 14px; padding-top: 14px; border-top: 1.5px dashed var(--line-strong); overflow-wrap: anywhere; }

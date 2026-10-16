@@ -84,9 +84,8 @@ export default function PostDetailPage() {
                 <dt>총대</dt>
                 <dd>{post.organizerNickname}{post.isMine && <span className="tag" style={{ marginLeft: 6 }}>내 글</span>}</dd>
               </dl>
+              {post.description && <p className="detail-desc">{post.description}</p>}
             </div>
-
-            <div className="card" style={{ whiteSpace: 'pre-wrap', marginBottom: 14, fontSize: 14.5 }}>{post.description}</div>
 
             {post.status === 'OPEN' && post.openChatUrl ? (
               <>

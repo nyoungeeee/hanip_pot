@@ -225,7 +225,9 @@ export class PostsService implements OnModuleInit, OnModuleDestroy {
       const c = byMenu.get(m.id);
       const openCount = c?.open_count ?? 0;
       const closedCount = c?.closed_count ?? 0;
-      // 공식 메뉴는 모임 유무와 관계없이 항상, 기타 메뉴는 그날 공개 글이 있을 때만
+      // 이용자가 새로 만든 업체는 메뉴별 목록에 넣지 않는다(업체가 너무 늘어남). 그 글은 시간별에서 보인다.
+      if (!m.vendor_official) continue;
+      // 공식 메뉴는 모임 유무와 관계없이 항상, 공식 업체 아래 기타 메뉴는 그날 공개 글이 있을 때만
       const visible = m.is_official ? !!m.active : openCount + closedCount > 0;
       if (!visible) continue;
       let v = vendors.get(m.vendor_id);

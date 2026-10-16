@@ -205,7 +205,7 @@ describe('모집글', () => {
     assert.equal(mine.find((p) => p.id === id)?.status, 'CANCELLED');
   });
 
-  test('기타 메뉴: 공식 업체명이면 그 업체 아래, 아니면 새 업체로 노출', async () => {
+  test('기타 메뉴: 공식 업체명이면 그 업체 아래 노출, 새 업체는 메뉴별 목록에 안 나옴', async () => {
     const r = await call('POST', '/posts', owner, postBody({
       menuIds: [], time: '17:00',
       customMenus: [{ vendorName: '베리분식', name: '떡튀김', price: 3000 }, { vendorName: '새로운포차', name: '포차오뎅꼬치', price: null }],
@@ -213,7 +213,7 @@ describe('모집글', () => {
     assert.equal(r.status, 201);
     const vendors = (await call('GET', `/vendors?day=${DAY}`)).json.vendors as { name: string; isOfficial: boolean; menus: { name: string; image: string | null }[] }[];
     assert.ok(vendors.find((v) => v.name === '베리분식')!.menus.some((m) => m.name === '떡튀김' && m.image === null));
-    assert.equal(vendors.find((v) => v.name === '새로운포차')?.isOfficial, false);
+    assert.ok(!vendors.some((v) => v.name === '새로운포차'));
     // 다른 날에는 기타 메뉴가 보이지 않는다
     const other = (await call('GET', '/vendors?day=2026-10-17')).text;
     assert.ok(!other.includes('포차오뎅꼬치'));
