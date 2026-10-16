@@ -102,6 +102,7 @@ h1, h2, h3, p { margin: 0; }
 .logo { font-size: 21px; font-weight: 900; letter-spacing: -0.03em; color: var(--ink); text-decoration: none; }
 .logo { display: inline-flex; align-items: center; gap: 6px; }
 .logo img { height: 34px; width: auto; flex-shrink: 0; border-radius: 6px; border: var(--outline); }
+.logo img.mark { width: 30px; height: 30px; margin-left: 2px; margin-right: -2px; border-radius: 8px; }
 .logo span { -webkit-text-stroke: 0.4px var(--ink); }
 .header .back {
   width: 36px; height: 36px; margin-left: -8px; border: 0; background: none; border-radius: 50%;
