@@ -538,4 +538,3 @@ h1, h2, h3, p { margin: 0; }
 .menu-row .thumb { position: relative; z-index: 1; }
 .detail-menu { text-decoration: none; color: inherit; }
 .detail-menu-go { display: inline-flex; align-items: center; font-size: 12px; font-weight: 700; color: var(--brand-ink); flex-shrink: 0; }
-.plain-posts .post-card.compact::before, .plain-posts .post-card.compact::after { display: none; }

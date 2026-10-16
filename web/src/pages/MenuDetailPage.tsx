@@ -1,22 +1,19 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router';
-import { api, ApiError, MenuDetail, PostSummary, Review } from '../api';
-import { useApp, useSelectedDay } from '../app-context';
+import { Link, useParams } from 'react-router';
+import { api, ApiError, MenuDetail, Review } from '../api';
+import { useApp } from '../app-context';
 import { Header } from '../components/Layout';
 import { HideSheet, ReviewCard, ReviewSheet } from '../components/Reviews';
-import { DayTabs, Empty, ErrorState, InfoList, MenuPostCard, Spinner, Thumb } from '../components/ui';
+import { Empty, ErrorState, InfoList, Spinner, Thumb } from '../components/ui';
 import { won } from '../format';
 
-/** 메뉴 상세: 메뉴 정보 → 후기(최신순) → 이 메뉴 모집글. 읽기는 로그인 없이. */
+/** 메뉴 상세: 메뉴 정보와 후기(최신순)만. 모집글은 메뉴별 화면에서 본다. 읽기는 로그인 없이. */
 export default function MenuDetailPage() {
   const { id } = useParams();
   const menuId = Number(id);
-  const { user, meta, requireLogin, handleAuthError, toast } = useApp();
-  const [day, setDay] = useSelectedDay();
-  const navigate = useNavigate();
+  const { user, requireLogin, handleAuthError, toast } = useApp();
   const [data, setData] = useState<MenuDetail | null>(null);
   const [error, setError] = useState<{ status: number; message: string } | null>(null);
-  const [posts, setPosts] = useState<PostSummary[] | null>(null);
   const [writing, setWriting] = useState(false);
   const [hiding, setHiding] = useState<Review | null>(null);
   const isAdmin = !!user?.isAdmin;
@@ -30,15 +27,8 @@ export default function MenuDetailPage() {
     load();
   }, [load, user?.id]);
 
-  useEffect(() => {
-    if (!day) return;
-    setPosts(null);
-    api.posts(day, menuId).then((r) => setPosts(r.posts)).catch(() => setPosts([]));
-  }, [day, menuId]);
-
   const here = `/menus/${menuId}`;
   const write = () => (user ? setWriting(true) : requireLogin(here));
-  const openPost = (pid: number) => (user ? navigate(`/posts/${pid}`) : requireLogin(`/posts/${pid}`));
   const unhide = async (r: Review) => {
     try {
       await api.unhideReview(r.id);
@@ -97,16 +87,6 @@ export default function MenuDetailPage() {
             <div className="stack">
               {reviews.map((r) => <ReviewCard key={r.id} review={r} isAdmin={isAdmin} onHide={setHiding} onUnhide={unhide} />)}
             </div>
-          )}
-        </section>
-
-        <section aria-labelledby="menu-posts-title" style={{ marginTop: 28 }}>
-          <h2 id="menu-posts-title" className="section-title" style={{ marginBottom: 0 }}>이 메뉴 모집글</h2>
-          {meta && day && <DayTabs days={meta.days} value={day} onChange={setDay} />}
-          {!posts ? <Spinner /> : posts.length === 0 ? (
-            <div className="search-empty">이 날 이 메뉴로 모인 팟이 없어요.</div>
-          ) : (
-            <div className="stack plain-posts">{posts.map((p) => <MenuPostCard key={p.id} post={p} menuId={menuId} onOpen={openPost} />)}</div>
           )}
         </section>
       </main>
