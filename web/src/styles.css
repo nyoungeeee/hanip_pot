@@ -537,4 +537,4 @@ h1, h2, h3, p { margin: 0; }
 /* 점선이 사진 아래에서 시작하도록 사진을 점선 위에 그린다 */
 .menu-row .thumb { position: relative; z-index: 1; }
 .detail-menu { text-decoration: none; color: inherit; }
-.detail-menu-go { display: inline-flex; align-items: center; font-size: 12px; font-weight: 700; color: var(--brand-ink); flex-shrink: 0; }
+.detail-menu-go { display: grid; place-items: center; flex-shrink: 0; color: var(--ink-3); }

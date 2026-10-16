@@ -64,7 +64,9 @@ export interface PostSummary {
   status: PostStatus;
   menus: MenuRef[];
 }
-export interface PostDetail extends PostSummary {
+export interface PostDetail extends Omit<PostSummary, 'menus'> {
+  /** 상세 조회(GET /posts/:id)에서만 후기 수가 붙는다 */
+  menus: (MenuRef & { reviewCount?: number; goodCount?: number })[];
   description: string;
   organizerNickname: string;
   closeReason: 'MANUAL' | 'EXPIRED' | null;

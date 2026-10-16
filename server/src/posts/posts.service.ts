@@ -285,7 +285,22 @@ export class PostsService implements OnModuleInit, OnModuleDestroy {
     const row = this.getRow(id);
     const visibleToViewer = row && !row.withdrawn_at && (row.status !== 'CANCELLED' || row.organizer_id === viewerId);
     if (!row || !visibleToViewer) fail(404, 'NOT_FOUND', '모집글을 찾을 수 없어요.');
-    return this.full(row, viewerId, false);
+    const post = this.full(row, viewerId, false);
+    return { ...post, menus: this.withReviewCounts(post.menus) };
+  }
+
+  /** 모집글 상세의 메뉴마다 공개 후기 수와 추천 수를 붙인다. */
+  private withReviewCounts(menus: MenuRef[]) {
+    if (!menus.length) return [];
+    const rows = this.db
+      .prepare(`
+        SELECT r.menu_id, COUNT(*) AS review_count, SUM(r.verdict = 'GOOD') AS good_count
+        FROM reviews r JOIN users u ON u.id = r.author_id
+        WHERE r.menu_id IN (${menus.map(() => '?').join(',')}) AND ${REVIEW_PUBLIC_WHERE}
+        GROUP BY r.menu_id`)
+      .all(...menus.map((m) => m.id)) as { menu_id: number; review_count: number; good_count: number }[];
+    const by = new Map(rows.map((r) => [r.menu_id, r]));
+    return menus.map((m) => ({ ...m, reviewCount: by.get(m.id)?.review_count ?? 0, goodCount: by.get(m.id)?.good_count ?? 0 }));
   }
 
   mine(userId: number) {

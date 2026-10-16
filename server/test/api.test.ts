@@ -258,6 +258,11 @@ describe('메뉴 후기', () => {
     assert.equal(m.reviewCount, 1);
     assert.equal(m.goodCount, 1);
     assert.equal((await call('GET', `/menus/${menuId}`, a.cookie)).json.myReview.hidden, false);
+    // 모집글 상세의 메뉴에도 후기 수가 붙는다
+    const pid = (await call('POST', '/posts', a.cookie, postBody({ menuIds: [menuId], title: '후기수확인', time: '19:00' }))).json.post.id;
+    const pm = (await call('GET', `/posts/${pid}`, a.cookie)).json.post.menus[0];
+    assert.equal(pm.reviewCount, 1);
+    assert.equal(pm.goodCount, 1);
   });
 
   test('운영자 숨김: 공개에서 빠지고 작성자에겐 숨김 상태로 남고 복구 가능', async () => {

@@ -73,8 +73,9 @@ export default function PostDetailPage() {
                         <div className="grow">
                           <div className="n">{m.name}</div>
                           <div className="v">{menuSubLine(m)}</div>
+                          <div className="review-count">{m.reviewCount ? `후기 ${m.reviewCount} · 추천 ${m.goodCount ?? 0}` : '후기 쓰기'}</div>
                         </div>
-                        <span className="detail-menu-go">후기<IconChevron size={14} /></span>
+                        <span className="detail-menu-go" aria-hidden="true"><IconChevron size={16} /></span>
                       </Link>
                     ))}
                   </div>
