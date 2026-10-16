@@ -1,6 +1,6 @@
-import { Component, StrictMode, useEffect } from 'react';
+import { Component, StrictMode, useEffect, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
-import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation } from 'react-router';
+import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation, useNavigationType } from 'react-router';
 import './styles.css';
 import { AppProvider, useApp } from './app-context';
 import { BottomNav, Header, NoticeBanner } from './components/Layout';
@@ -40,11 +40,46 @@ function Protected() {
   return <Outlet />;
 }
 
+/** 화면별 스크롤 위치(history 항목 key 기준). 뒤로 가면 떠날 때 위치로 돌려놓는다. */
+const scrollByKey = new Map<string, number>();
+
 function Shell() {
-  const { pathname } = useLocation();
+  const location = useLocation();
+  const navType = useNavigationType();
+  const lastPath = useRef(location.pathname);
+
   useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [pathname]);
+    const save = () => scrollByKey.set(location.key, window.scrollY);
+    // 같은 화면에서 주소만 바뀐 경우(펼친 메뉴·날짜 등 replace)는 지금 위치를 새 항목에 이어 받는다
+    if (navType === 'REPLACE') save();
+    window.addEventListener('scroll', save, { passive: true });
+    return () => window.removeEventListener('scroll', save);
+  }, [location.key, navType]);
+
+  useEffect(() => {
+    const pathChanged = lastPath.current !== location.pathname;
+    lastPath.current = location.pathname;
+    if (navType === 'POP') {
+      // 목록은 데이터를 다시 불러온 뒤에야 길어지므로, 목표 위치에 닿을 때까지 잠깐 다시 시도한다
+      const target = scrollByKey.get(location.key) ?? 0;
+      const until = Date.now() + 1500;
+      let raf = 0;
+      const tick = () => {
+        window.scrollTo(0, target);
+        if (Math.abs(window.scrollY - target) > 2 && Date.now() < until) raf = requestAnimationFrame(tick);
+      };
+      tick();
+      const stop = () => cancelAnimationFrame(raf);
+      window.addEventListener('touchstart', stop, { once: true });
+      window.addEventListener('wheel', stop, { once: true });
+      return () => {
+        stop();
+        window.removeEventListener('touchstart', stop);
+        window.removeEventListener('wheel', stop);
+      };
+    }
+    if (pathChanged) window.scrollTo(0, 0);
+  }, [location.key, location.pathname, navType]);
   return (
     <div className="app">
       <NoticeBanner />

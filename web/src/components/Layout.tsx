@@ -50,10 +50,10 @@ export function OtherMenuHint() {
 
 export function Header({ back, title, right }: { back?: boolean | string; title?: string; right?: React.ReactNode }) {
   const navigate = useNavigate();
+  // 앱 안에서 넘어온 화면이면 직전 화면으로(스크롤·펼친 메뉴도 그대로), 주소로 바로 들어왔으면 back에 적힌 곳(없으면 홈)으로
   const goBack = () => {
-    if (typeof back === 'string') navigate(back);
-    else if (window.history.state?.idx > 0) navigate(-1);
-    else navigate('/');
+    if (window.history.state?.idx > 0) navigate(-1);
+    else navigate(typeof back === 'string' ? back : '/');
   };
   return (
     <header className="header">

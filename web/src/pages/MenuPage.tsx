@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { Link, useNavigate, useSearchParams } from 'react-router';
 import { api, MenuWithCounts, PostSummary, Vendor } from '../api';
 import { useApp, useOpenOnly, useSelectedDay } from '../app-context';
 import { EventStrip, Header, OtherMenuHint } from '../components/Layout';
@@ -19,7 +19,15 @@ export default function MenuPage() {
   const navigate = useNavigate();
   const [vendors, setVendors] = useState<Vendor<MenuWithCounts>[] | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [expanded, setExpanded] = useState<number | null>(null);
+  // 펼친 메뉴는 주소(?open=)에 남겨, 후기·모집글을 보고 뒤로 오면 그대로 펼쳐져 있게 한다
+  const [params, setParams] = useSearchParams();
+  const expanded = Number(params.get('open')) || null;
+  const setExpanded = (id: number | null) =>
+    setParams((p) => {
+      if (id) p.set('open', String(id));
+      else p.delete('open');
+      return p;
+    }, { replace: true });
   const [posts, setPosts] = useState<Record<number, PostSummary[] | 'loading' | 'error'>>({});
   const [query, setQuery] = useState('');
   const [openOnly, setOpenOnly] = useOpenOnly();
@@ -29,22 +37,22 @@ export default function MenuPage() {
     if (!day) return;
     setError(null);
     setVendors(null);
-    setPosts({});
     api.vendors(day).then((r) => setVendors(r.vendors)).catch((e) => setError(e.message));
   }, [day]);
   useEffect(() => {
     load();
   }, [load]);
 
-  const toggle = (menuId: number) => {
-    if (expanded === menuId) return setExpanded(null);
-    setExpanded(menuId);
-    if (!day) return;
+  const toggle = (menuId: number) => setExpanded(expanded === menuId ? null : menuId);
+  // 펼친 메뉴의 모집글: 펼칠 때, 날짜를 바꿀 때, 뒤로 돌아왔을 때 다시 불러온다
+  useEffect(() => {
+    if (!day || !expanded) return;
+    const menuId = expanded;
     setPosts((p) => ({ ...p, [menuId]: 'loading' }));
     api.posts(day, menuId)
       .then((r) => setPosts((p) => ({ ...p, [menuId]: r.posts })))
       .catch(() => setPosts((p) => ({ ...p, [menuId]: 'error' })));
-  };
+  }, [day, expanded]);
 
   const open = (id: number) => (user ? navigate(`/posts/${id}`) : requireLogin(`/posts/${id}`));
   // 이 메뉴를 고른 채로 등록 화면 열기. 남이 만든 기타 메뉴는 고를 수 없어 같은 이름으로 복사해 넣는다.
