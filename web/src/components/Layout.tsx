@@ -106,12 +106,12 @@ export function Header({ back, title, right }: { back?: boolean | string; title?
         <>
           <Link to="/" className="logo" aria-label="한입팟"><img className="mark" src="/logo-84.png?v=2" alt="" width={30} height={30} /><span>한입팟</span></Link>
           <button type="button" className="refresh" aria-label="새로고침" onClick={() => location.reload()}><IconRefresh /></button>
-          {POPUP_NOTICE && (
-            <button type="button" className="notice-badge" onClick={() => window.dispatchEvent(new Event(OPEN_NOTICE))}>공지</button>
-          )}
         </>
       )}
       <div className="spacer" />
+      {!title && POPUP_NOTICE && (
+        <button type="button" className="notice-badge" onClick={() => window.dispatchEvent(new Event(OPEN_NOTICE))}>공지</button>
+      )}
       {right}
     </header>
   );

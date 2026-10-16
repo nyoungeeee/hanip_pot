@@ -549,7 +549,7 @@ html, body { overflow-x: clip; }
 .notice-modal .notice-closing { margin: 14px 0 12px; font-size: 15px; font-weight: 700; color: var(--pink); }
 .notice-modal .notice-contact { display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 10px; text-decoration: none; }
 .notice-badge {
-  height: 26px; padding: 0 10px; margin-left: 2px; border: 1.5px solid var(--ink); border-radius: 13px;
+  height: 28px; padding: 0 11px; margin-right: 4px; border: 1.5px solid var(--ink); border-radius: 14px; flex-shrink: 0;
   background: var(--ink); color: var(--yellow); font-size: 12.5px; font-weight: 700; letter-spacing: -0.01em; white-space: nowrap;
 }
 .notice-badge:active { background: #3a342c; }
