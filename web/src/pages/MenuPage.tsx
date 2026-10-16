@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { api, MenuWithCounts, PostSummary, Vendor } from '../api';
 import { useApp, useOpenOnly, useSelectedDay } from '../app-context';
 import { EventStrip, Header, OtherMenuHint } from '../components/Layout';
@@ -89,12 +89,17 @@ export default function MenuPage() {
                         <div className="info">
                           <div className="name">{m.name}{!m.isOfficial && <> <span className="tag">기타</span></>}</div>
                           {m.price != null && <div className="price">{won(m.price)}</div>}
+                          {m.reviewCount > 0 && <div className="review-count">후기 {m.reviewCount} · 추천 {m.goodCount}</div>}
                         </div>
                         <MenuBadge m={m} />
                         <span className="chev"><IconChevron /></span>
                       </button>
                       {isOpen && (
                         <div className="menu-posts" role="region" aria-label={`${m.name} 모집글`}>
+                          <Link className="menu-detail-link" to={`/menus/${m.id}?day=${day}`}>
+                            <span>{m.reviewCount > 0 ? `후기 ${m.reviewCount}개 보기` : '첫 후기 남기기'}</span>
+                            <span className="muted">메뉴 상세</span><IconChevron size={14} />
+                          </Link>
                           {list === 'loading' || !list ? (
                             <div className="empty">불러오는 중…</div>
                           ) : list === 'error' ? (

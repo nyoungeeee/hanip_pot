@@ -12,6 +12,8 @@ export interface AppConfig {
   sessionDays: number;
   trustProxy: boolean;
   authMock: boolean;
+  /** 운영자 카카오 회원번호(쉼표 구분). 후기 숨기기·복구를 할 수 있다. */
+  adminKakaoIds: Set<string>;
   kakao: {
     restApiKey: string;
     clientSecret: string;
@@ -40,6 +42,7 @@ export function loadConfig(): AppConfig {
     sessionDays: 7,
     trustProxy: env('TRUST_PROXY', production ? '1' : '0') === '1',
     authMock: env('AUTH_MOCK') === '1',
+    adminKakaoIds: new Set(env('ADMIN_KAKAO_IDS').split(',').map((s) => s.trim()).filter(Boolean)),
     kakao: {
       restApiKey: env('KAKAO_REST_API_KEY'),
       clientSecret: env('KAKAO_CLIENT_SECRET'),

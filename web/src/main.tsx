@@ -9,7 +9,8 @@ import MenuPage from './pages/MenuPage';
 import TimelinePage from './pages/TimelinePage';
 import PostDetailPage from './pages/PostDetailPage';
 import CreatePage, { CreateDonePage } from './pages/CreatePage';
-import { EditPostPage, MePage, MyPostsPage, WithdrawPage } from './pages/MePages';
+import { EditPostPage, MePage, MyPostsPage, MyReviewsPage, WithdrawPage } from './pages/MePages';
+import MenuDetailPage from './pages/MenuDetailPage';
 import { DeniedPage, GuidePage, WelcomePage } from './pages/AuthPages';
 
 /** 예전 시간별 주소(/timeline?day=...)는 메인(/)으로 넘긴다. */
@@ -79,6 +80,7 @@ createRoot(document.getElementById('root')!).render(
           <Route element={<Shell />}>
             <Route index element={<TimelinePage />} />
             <Route path="menu" element={<MenuPage />} />
+            <Route path="menus/:id" element={<MenuDetailPage />} />
             <Route path="timeline" element={<LegacyTimeline />} />
             <Route path="guide" element={<GuidePage />} />
             <Route path="auth/denied" element={<DeniedPage />} />
@@ -89,6 +91,7 @@ createRoot(document.getElementById('root')!).render(
               <Route path="new/done/:id" element={<CreateDonePage />} />
               <Route path="me" element={<MePage />} />
               <Route path="me/posts" element={<MyPostsPage />} />
+              <Route path="me/reviews" element={<MyReviewsPage />} />
               <Route path="me/posts/:id/edit" element={<EditPostPage />} />
               <Route path="me/withdraw" element={<WithdrawPage />} />
             </Route>

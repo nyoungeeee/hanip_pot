@@ -13,6 +13,38 @@ export interface MenuRef {
 export interface MenuWithCounts extends MenuRef {
   openCount: number;
   closedCount: number;
+  reviewCount: number;
+  goodCount: number;
+}
+export type Verdict = 'GOOD' | 'MEH';
+export type HideReason = 'ABUSE' | 'AD' | 'OFFTOPIC' | 'PRIVACY';
+export interface Review {
+  id: number;
+  body: string;
+  verdict: Verdict;
+  createdAt: string;
+  nickname: string;
+  isMine: boolean;
+  /** 운영자에게만 내려온다 */
+  hidden: { reason: HideReason } | null;
+}
+export interface MenuDetail {
+  menu: {
+    id: number; name: string; price: number | null; isOfficial: boolean;
+    vendorId: number; vendorName: string; vendorIsOfficial: boolean; zone: string | null; image: string | null;
+  };
+  summary: { count: number; good: number; meh: number };
+  reviews: Review[];
+  myReview: { id: number; hidden: boolean } | null;
+  rules: { bodyMin: number; bodyMax: number };
+}
+export interface MyReview {
+  id: number;
+  body: string;
+  verdict: Verdict;
+  createdAt: string;
+  status: 'PUBLIC' | 'HIDDEN';
+  menu: { id: number; name: string; vendorName: string };
 }
 export interface Vendor<M = MenuRef> {
   id: number;
@@ -50,6 +82,7 @@ export interface Me {
   id: number;
   nickname: string;
   nicknameConfirmed: boolean;
+  isAdmin: boolean;
 }
 export interface Rules {
   titleMax: number;
@@ -123,6 +156,13 @@ export const api = {
   myPosts: () => request<{ posts: PostDetail[] }>('GET', '/me/posts'),
   withdraw: () => request<{ ok: true; kakaoUnlinked: boolean }>('DELETE', '/me'),
   logout: () => request<{ ok: true }>('POST', '/auth/logout'),
+  menu: (id: number) => request<MenuDetail>('GET', `/menus/${id}`),
+  createReview: (menuId: number, body: { body: string; verdict: Verdict }) =>
+    request<{ review: { id: number } }>('POST', `/menus/${menuId}/reviews`, body),
+  myReviews: () => request<{ reviews: MyReview[] }>('GET', '/me/reviews'),
+  deleteReview: (id: number) => request<{ ok: true }>('DELETE', `/me/reviews/${id}`),
+  hideReview: (id: number, reason: HideReason) => request<{ ok: true }>('POST', `/admin/reviews/${id}/hide`, { reason }),
+  unhideReview: (id: number) => request<{ ok: true }>('POST', `/admin/reviews/${id}/unhide`),
   upload: (file: File) => {
     const fd = new FormData();
     fd.append('file', file);

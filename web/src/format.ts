@@ -28,6 +28,12 @@ export function kstNowIso(): string {
   return new Date().toISOString();
 }
 
+/** UTC ISO → '10.17 13:20' (KST) */
+export function shortDateTime(iso: string): string {
+  const k = new Date(new Date(iso).getTime() + 9 * 3600 * 1000).toISOString();
+  return `${k.slice(5, 7)}.${k.slice(8, 10)} ${k.slice(11, 16)}`;
+}
+
 export function toMeetupIso(day: string, time: string): string {
   const d = new Date(`${day}T${time}:00+09:00`);
   return Number.isNaN(d.getTime()) ? '' : d.toISOString();

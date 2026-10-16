@@ -22,6 +22,16 @@ export class AuthGuard implements CanActivate {
   }
 }
 
+/** 운영자(ADMIN_KAKAO_IDS)만 허용. AuthGuard 뒤에 둔다. */
+@Injectable()
+export class AdminGuard implements CanActivate {
+  canActivate(ctx: ExecutionContext): boolean {
+    const user = ctx.switchToHttp().getRequest<AuthedRequest>().user;
+    if (!user?.isAdmin) fail(403, 'FORBIDDEN', '운영자만 할 수 있어요.');
+    return true;
+  }
+}
+
 export const CurrentUser = createParamDecorator((_: unknown, ctx: ExecutionContext): SessionUser => {
   return ctx.switchToHttp().getRequest<AuthedRequest>().user!;
 });

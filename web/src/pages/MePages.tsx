@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
-import { api, ApiError, PostDetail, PostStatus } from '../api';
+import { api, ApiError, MyReview, PostDetail, PostStatus } from '../api';
 import { useApp } from '../app-context';
 import { Header } from '../components/Layout';
 import { IconChat, IconChevron, IconDoc, IconHelp, IconLogout, IconPencil } from '../components/Icons';
@@ -9,7 +9,8 @@ import {
 } from '../components/PostForm';
 import { Dialog, Empty, ErrorState, Sheet, Spinner, StatusBadge, Thumb, InfoList } from '../components/ui';
 import { CONTACT_URL } from '../copy';
-import { longDay } from '../format';
+import { longDay, shortDateTime } from '../format';
+import { VerdictChip } from '../components/Reviews';
 
 // ---------------- P1: 내정보 ----------------
 
@@ -17,10 +18,12 @@ export function MePage() {
   const { user, signOut, toast } = useApp();
   const navigate = useNavigate();
   const [count, setCount] = useState<number | null>(null);
+  const [reviewCount, setReviewCount] = useState<number | null>(null);
   const [editing, setEditing] = useState(false);
 
   useEffect(() => {
     api.myPosts().then((r) => setCount(r.posts.filter((p) => p.status !== 'CANCELLED').length)).catch(() => {});
+    api.myReviews().then((r) => setReviewCount(r.reviews.length)).catch(() => {});
   }, []);
 
   const logout = async () => {
@@ -45,6 +48,7 @@ export function MePage() {
         </div>
         <nav className="list-menu">
           <Link to="/me/posts"><span className="ic"><IconDoc /></span><span className="grow">내 모집글</span>{count !== null && <span className="count">{count}건</span>}<IconChevron /></Link>
+          <Link to="/me/reviews"><span className="ic"><IconPencil size={20} /></span><span className="grow">내 후기</span>{reviewCount !== null && <span className="count">{reviewCount}건</span>}<IconChevron /></Link>
           <Link to="/guide"><span className="ic"><IconHelp /></span><span className="grow">이용 안내</span><IconChevron /></Link>
           <a href={CONTACT_URL} target="_blank" rel="noopener noreferrer">
             <span className="ic"><IconChat /></span><span className="grow">운영자에게 문의<span className="sub">카카오톡 오픈채팅으로 연결돼요</span></span><IconChevron />
@@ -214,6 +218,79 @@ export function MyPostsPage() {
           cancelLabel="계속 모집하기" confirmLabel="모집 종료" busy={busy} onCancel={() => setConfirm(null)} onConfirm={act} />
       )}
       {confirm?.kind === 'cancel' && <CancelDialog busy={busy} onCancel={() => setConfirm(null)} onConfirm={act} />}
+    </>
+  );
+}
+
+// ---------------- 내 후기: 확인·삭제(수정 없음) ----------------
+
+export function MyReviewsPage() {
+  const { handleAuthError, toast } = useApp();
+  const [reviews, setReviews] = useState<MyReview[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [confirm, setConfirm] = useState<MyReview | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  const load = useCallback(() => {
+    setError(null);
+    api.myReviews().then((r) => setReviews(r.reviews)).catch((e) => !handleAuthError(e) && setError(e.message));
+  }, [handleAuthError]);
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  const remove = async () => {
+    if (!confirm) return;
+    setBusy(true);
+    try {
+      await api.deleteReview(confirm.id);
+      setReviews((rs) => rs!.filter((r) => r.id !== confirm.id));
+      toast('후기를 삭제했어요.');
+    } catch (e) {
+      if (!handleAuthError(e)) {
+        toast((e as ApiError).message);
+        load();
+      }
+    } finally {
+      setBusy(false);
+      setConfirm(null);
+    }
+  };
+
+  return (
+    <>
+      <Header back="/me" title="내 후기" />
+      <main className="page">
+        {error ? <ErrorState message={error} onRetry={load} /> : !reviews ? <Spinner /> : reviews.length === 0 ? (
+          <Empty title="아직 남긴 후기가 없어요" action={{ to: '/menu', label: '메뉴 보러 가기' }}>먹어본 메뉴의 상세 화면에서 후기를 남길 수 있어요.</Empty>
+        ) : (
+          <div className="stack">
+            <InfoList items={['후기는 수정할 수 없어요. 다시 쓰려면 삭제한 뒤 메뉴 상세에서 새로 써 주세요.']} />
+            {reviews.map((r) => (
+              <article key={r.id} className={`review-card${r.status === 'HIDDEN' ? ' is-hidden' : ''}`}>
+                <Link to={`/menus/${r.menu.id}`} className="review-menu">[{r.menu.vendorName}] {r.menu.name}</Link>
+                <div className="review-meta">
+                  <span className={`badge ${r.status === 'HIDDEN' ? 'closed' : 'open'}`}>{r.status === 'HIDDEN' ? '운영자가 숨김' : '공개'}</span>
+                  <VerdictChip verdict={r.verdict} />
+                  <span className="grow" />
+                  <time dateTime={r.createdAt}>{shortDateTime(r.createdAt)}</time>
+                </div>
+                <p className="review-body">{r.body}</p>
+                <div style={{ textAlign: 'right' }}>
+                  <button type="button" className="link-btn text-danger" onClick={() => setConfirm(r)}>삭제</button>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+      </main>
+      {confirm && (
+        <Dialog
+          title="후기를 삭제할까요?"
+          body={<>삭제한 후기는 되돌릴 수 없어요.<br />다시 쓰려면 메뉴 상세에서 새로 써 주세요.</>}
+          cancelLabel="취소" confirmLabel="삭제" busy={busy} onCancel={() => setConfirm(null)} onConfirm={remove}
+        />
+      )}
     </>
   );
 }

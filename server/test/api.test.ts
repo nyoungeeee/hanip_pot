@@ -58,7 +58,7 @@ function postBody(over: Record<string, unknown> = {}) {
 
 before(async () => {
   server = spawn(process.execPath, [path.join(__dirname, '..', 'src', 'main.js')], {
-    env: { ...process.env, PORT: String(PORT), AUTH_MOCK: '1', DATA_DIR: tmp, UPLOAD_DIR: path.join(tmp, 'up'), WEB_DIST: path.join(tmp, 'noweb'), PUBLIC_URL: BASE, NODE_ENV: 'test', SEED_DIR: path.join(__dirname, '..', '..', 'seed') },
+    env: { ...process.env, PORT: String(PORT), AUTH_MOCK: '1', DATA_DIR: tmp, UPLOAD_DIR: path.join(tmp, 'up'), WEB_DIST: path.join(tmp, 'noweb'), PUBLIC_URL: BASE, NODE_ENV: 'test', ADMIN_KAKAO_IDS: 'mock-900', SEED_DIR: path.join(__dirname, '..', '..', 'seed') },
     stdio: 'ignore',
   });
   for (let i = 0; i < 50; i++) {
@@ -231,5 +231,80 @@ describe('모집글', () => {
     assert.match(again.location, /^\/welcome/);
     // 닉네임이 해제되어 다시 쓸 수 있다
     assert.equal((await call('PATCH', '/me', again.cookie, { nickname: '떠날사람' })).status, 200);
+  });
+});
+
+describe('메뉴 후기', () => {
+  test('작성·공개·한 메뉴 한 개·입력 검사', async () => {
+    const menuId = menuIds['타코야끼'];
+    const a = await login('801');
+    await call('PATCH', '/me', a.cookie, { nickname: '후기러' });
+    // 읽기는 로그인 없이, 쓰기는 로그인 필요
+    assert.equal((await call('GET', `/menus/${menuId}`)).status, 200);
+    assert.equal((await call('POST', `/menus/${menuId}/reviews`, null, { body: '맛있어요 추천', verdict: 'GOOD' })).status, 401);
+    assert.equal((await call('POST', `/menus/${menuId}/reviews`, a.cookie, { body: '짧', verdict: 'GOOD' })).status, 400);
+    assert.equal((await call('POST', `/menus/${menuId}/reviews`, a.cookie, { body: '맛있어요 추천', verdict: 'SO' })).status, 400);
+    assert.equal((await call('POST', `/menus/${menuId}/reviews`, a.cookie, { body: '여기로 오세요 open.kakao.com/o/abc', verdict: 'GOOD' })).status, 400);
+    assert.equal((await call('POST', `/menus/${menuId}/reviews`, a.cookie, { body: '연락 010-1234-5678 주세요', verdict: 'GOOD' })).status, 400);
+    assert.equal((await call('POST', `/menus/${menuId}/reviews`, a.cookie, { body: '겉바속촉 맛있어요', verdict: 'GOOD' })).status, 201);
+    assert.equal((await call('POST', `/menus/${menuId}/reviews`, a.cookie, { body: '한 번 더 쓰기', verdict: 'MEH' })).status, 409);
+
+    const d = (await call('GET', `/menus/${menuId}`)).json;
+    assert.deepEqual(d.summary, { count: 1, good: 1, meh: 0 });
+    assert.equal(d.reviews[0].nickname, '후기러');
+    assert.equal(d.reviews[0].hidden, null);
+    const vendors = (await call('GET', `/vendors?day=${DAY}`)).json.vendors as { menus: { id: number; reviewCount: number; goodCount: number }[] }[];
+    const m = vendors.flatMap((v) => v.menus).find((x) => x.id === menuId)!;
+    assert.equal(m.reviewCount, 1);
+    assert.equal(m.goodCount, 1);
+    assert.equal((await call('GET', `/menus/${menuId}`, a.cookie)).json.myReview.hidden, false);
+  });
+
+  test('운영자 숨김: 공개에서 빠지고 작성자에겐 숨김 상태로 남고 복구 가능', async () => {
+    const menuId = menuIds['소떡소떡'];
+    const a = await login('802');
+    await call('PATCH', '/me', a.cookie, { nickname: '광고계정' });
+    const id = (await call('POST', `/menus/${menuId}/reviews`, a.cookie, { body: '우리 가게도 와주세요', verdict: 'GOOD' })).json.review.id;
+    const admin = await login('900');
+    await call('PATCH', '/me', admin.cookie, { nickname: '운영자' });
+    assert.equal((await call('GET', '/me', admin.cookie)).json.user.isAdmin, true);
+    assert.equal((await call('GET', '/me', a.cookie)).json.user.isAdmin, false);
+
+    // 일반 회원은 숨길 수 없고, 이유가 없으면 거부
+    assert.equal((await call('POST', `/admin/reviews/${id}/hide`, a.cookie, { reason: 'AD' })).status, 403);
+    assert.equal((await call('POST', `/admin/reviews/${id}/hide`, admin.cookie, { reason: 'WHY' })).status, 400);
+    assert.equal((await call('POST', `/admin/reviews/${id}/hide`, admin.cookie, { reason: 'AD' })).status, 200);
+
+    const pub = (await call('GET', `/menus/${menuId}`)).json;
+    assert.equal(pub.summary.count, 0);
+    assert.equal(pub.reviews.length, 0);
+    const asAdmin = (await call('GET', `/menus/${menuId}`, admin.cookie)).json;
+    assert.deepEqual(asAdmin.reviews[0].hidden, { reason: 'AD' });
+    assert.equal(asAdmin.summary.count, 0);
+    // 작성자: 사유 없이 상태만
+    const mine = (await call('GET', '/me/reviews', a.cookie)).json.reviews;
+    assert.equal(mine[0].status, 'HIDDEN');
+    assert.ok(!('reason' in mine[0]));
+
+    assert.equal((await call('POST', `/admin/reviews/${id}/unhide`, admin.cookie)).status, 200);
+    assert.equal((await call('GET', `/menus/${menuId}`)).json.summary.count, 1);
+  });
+
+  test('삭제: 본인만, 지우면 다시 쓸 수 있고 탈퇴하면 숨김', async () => {
+    const menuId = menuIds['순대'];
+    const a = await login('803');
+    await call('PATCH', '/me', a.cookie, { nickname: '순대러' });
+    const b = await login('804');
+    await call('PATCH', '/me', b.cookie, { nickname: '남의글' });
+    const id = (await call('POST', `/menus/${menuId}/reviews`, a.cookie, { body: '찰순대 쫄깃해요', verdict: 'GOOD' })).json.review.id;
+    assert.equal((await call('DELETE', `/me/reviews/${id}`, b.cookie)).status, 404);
+    assert.equal((await call('DELETE', `/me/reviews/${id}`, a.cookie)).status, 200);
+    assert.equal((await call('GET', '/me/reviews', a.cookie)).json.reviews.length, 0);
+    assert.equal((await call('GET', `/menus/${menuId}`)).json.summary.count, 0);
+    // 지운 뒤에는 다시 쓸 수 있다
+    assert.equal((await call('POST', `/menus/${menuId}/reviews`, a.cookie, { body: '다시 먹어도 맛있음', verdict: 'GOOD' })).status, 201);
+    assert.equal((await call('GET', `/menus/${menuId}`)).json.summary.count, 1);
+    assert.equal((await call('DELETE', '/me', a.cookie)).status, 200);
+    assert.equal((await call('GET', `/menus/${menuId}`)).json.summary.count, 0);
   });
 });

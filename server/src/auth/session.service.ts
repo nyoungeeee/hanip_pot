@@ -11,6 +11,7 @@ export interface SessionUser {
   id: number;
   nickname: string;
   nicknameConfirmed: boolean;
+  isAdmin: boolean;
 }
 
 @Injectable()
@@ -49,12 +50,15 @@ export class SessionService {
     if (typeof token !== 'string' || !token) return null;
     const row = this.database.db
       .prepare(`
-        SELECT u.id, u.nickname, u.nickname_confirmed
+        SELECT u.id, u.nickname, u.nickname_confirmed, u.kakao_id
         FROM sessions s JOIN users u ON u.id = s.user_id
         WHERE s.token_hash = ? AND s.expires_at > ? AND u.withdrawn_at IS NULL`)
-      .get(this.hash(token), nowIso()) as { id: number; nickname: string; nickname_confirmed: number } | undefined;
+      .get(this.hash(token), nowIso()) as { id: number; nickname: string; nickname_confirmed: number; kakao_id: string | null } | undefined;
     if (!row) return null;
-    return { id: row.id, nickname: row.nickname, nicknameConfirmed: !!row.nickname_confirmed };
+    return {
+      id: row.id, nickname: row.nickname, nicknameConfirmed: !!row.nickname_confirmed,
+      isAdmin: !!row.kakao_id && this.cfg.adminKakaoIds.has(row.kakao_id),
+    };
   }
 
   destroy(req: Request, res: Response) {

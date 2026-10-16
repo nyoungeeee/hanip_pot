@@ -5,6 +5,7 @@ import {
   GUIDELINE_VERSION, isEventDay, kstToUtcIso, nowIso, POST_RULES, utcIsoToKst,
 } from '../common/event';
 import { fail } from '../common/errors';
+import { REVIEW_PUBLIC_WHERE } from '../reviews/reviews.service';
 
 export type PostStatus = 'OPEN' | 'CLOSED' | 'CANCELLED';
 
@@ -195,6 +196,15 @@ export class PostsService implements OnModuleInit, OnModuleDestroy {
         GROUP BY pm.menu_id`)
       .all({ now: nowIso(), day }) as { menu_id: number; open_count: number; closed_count: number }[];
     const byMenu = new Map(counts.map((c) => [c.menu_id, c]));
+    // 후기 수는 날짜와 관계없이 메뉴 전체 기준
+    const reviewCounts = this.db
+      .prepare(`
+        SELECT r.menu_id, COUNT(*) AS review_count, SUM(r.verdict = 'GOOD') AS good_count
+        FROM reviews r JOIN users u ON u.id = r.author_id
+        WHERE ${REVIEW_PUBLIC_WHERE}
+        GROUP BY r.menu_id`)
+      .all() as { menu_id: number; review_count: number; good_count: number }[];
+    const reviewsByMenu = new Map(reviewCounts.map((c) => [c.menu_id, c]));
 
     const menus = this.db
       .prepare(`
@@ -209,7 +219,7 @@ export class PostsService implements OnModuleInit, OnModuleDestroy {
 
     const vendors = new Map<number, {
       id: number; name: string; zone: string | null; isOfficial: boolean; image: string | null;
-      menus: (MenuRef & { openCount: number; closedCount: number })[];
+      menus: (MenuRef & { openCount: number; closedCount: number; reviewCount: number; goodCount: number })[];
     }>();
     for (const m of menus) {
       const c = byMenu.get(m.id);
@@ -223,7 +233,8 @@ export class PostsService implements OnModuleInit, OnModuleDestroy {
         v = { id: m.vendor_id, name: m.vendor_name, zone: m.zone, isOfficial: !!m.vendor_official, image: m.vendor_image, menus: [] };
         vendors.set(m.vendor_id, v);
       }
-      v.menus.push({ ...toMenuRef(m), openCount, closedCount });
+      const rc = reviewsByMenu.get(m.id);
+      v.menus.push({ ...toMenuRef(m), openCount, closedCount, reviewCount: rc?.review_count ?? 0, goodCount: rc?.good_count ?? 0 });
     }
     return [...vendors.values()];
   }

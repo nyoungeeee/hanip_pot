@@ -4,7 +4,7 @@ import { api, ApiError, PostDetail } from '../api';
 import { useApp } from '../app-context';
 import { COPY } from '../copy';
 import { Header } from '../components/Layout';
-import { IconLock } from '../components/Icons';
+import { IconChevron, IconLock } from '../components/Icons';
 import { Empty, ErrorState, Spinner, StatusBadge, Thumb, InfoList, sentences } from '../components/ui';
 import { longDay, menuSubLine } from '../format';
 
@@ -68,13 +68,14 @@ export default function PostDetailPage() {
                 <dd>
                   <div className="detail-menus">
                     {post.menus.map((m) => (
-                      <div key={m.id} className="detail-menu">
+                      <Link key={m.id} to={`/menus/${m.id}`} className="detail-menu">
                         <Thumb src={m.image} size={44} />
                         <div className="grow">
                           <div className="n">{m.name}</div>
                           <div className="v">{menuSubLine(m)}</div>
                         </div>
-                      </div>
+                        <span className="detail-menu-go">후기<IconChevron size={14} /></span>
+                      </Link>
                     ))}
                   </div>
                 </dd>

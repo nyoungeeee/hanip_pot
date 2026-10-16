@@ -4,13 +4,15 @@ import { DatabaseService } from './db/database.service';
 import { SessionService } from './auth/session.service';
 import { UsersService } from './auth/users.service';
 import { KakaoClient } from './auth/kakao.client';
-import { AuthGuard } from './auth/auth.guard';
+import { AdminGuard, AuthGuard } from './auth/auth.guard';
 import { AuthController } from './auth/auth.controller';
 import { PostsService } from './posts/posts.service';
 import { PostsController } from './posts/posts.controller';
 import { CatalogController } from './catalog/catalog.controller';
 import { MeController } from './me/me.controller';
 import { UploadsController } from './uploads/uploads.controller';
+import { ReviewsService } from './reviews/reviews.service';
+import { ReviewsController } from './reviews/reviews.controller';
 
 @Controller('health')
 class HealthController {
@@ -24,7 +26,7 @@ class HealthController {
 }
 
 @Module({
-  controllers: [HealthController, AuthController, CatalogController, PostsController, MeController, UploadsController],
+  controllers: [HealthController, AuthController, CatalogController, PostsController, MeController, UploadsController, ReviewsController],
   providers: [
     { provide: CONFIG, useFactory: loadConfig },
     DatabaseService,
@@ -32,7 +34,9 @@ class HealthController {
     UsersService,
     KakaoClient,
     AuthGuard,
+    AdminGuard,
     PostsService,
+    ReviewsService,
   ],
 })
 export class AppModule {}

@@ -93,4 +93,23 @@ export const MIGRATIONS: string[] = [
   UPDATE posts SET meetup_at = event_day || 'T01:00:00.000Z'
   WHERE strftime('%H:%M', meetup_at, '+9 hours') < '10:00';
   `,
+  // 메뉴별 후기(텍스트만). 작성자는 삭제만 가능(소프트 삭제), 운영자는 숨김·복구.
+  `
+  CREATE TABLE reviews (
+    id INTEGER PRIMARY KEY,
+    menu_id INTEGER NOT NULL REFERENCES menus(id),
+    author_id INTEGER NOT NULL REFERENCES users(id),
+    body TEXT NOT NULL,
+    verdict TEXT NOT NULL CHECK (verdict IN ('GOOD','MEH')),
+    created_at TEXT NOT NULL,
+    deleted_at TEXT,
+    hidden_at TEXT,
+    hidden_by INTEGER REFERENCES users(id),
+    hidden_reason TEXT CHECK (hidden_reason IN ('ABUSE','AD','OFFTOPIC','PRIVACY'))
+  );
+  CREATE INDEX reviews_menu ON reviews(menu_id, created_at);
+  CREATE INDEX reviews_author ON reviews(author_id);
+  -- 한 사람이 한 메뉴에 남은 후기는 하나. 지우면 다시 쓸 수 있다.
+  CREATE UNIQUE INDEX reviews_one_per_menu ON reviews(menu_id, author_id) WHERE deleted_at IS NULL;
+  `,
 ];
