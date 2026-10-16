@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
-import { api, ApiError, MyReview, PostDetail, PostStatus } from '../api';
+import { AdminStats, api, ApiError, MyReview, PostDetail, PostStatus } from '../api';
 import { useApp } from '../app-context';
 import { Header } from '../components/Layout';
 import { IconChat, IconChevron, IconDoc, IconHelp, IconLogout, IconPencil } from '../components/Icons';
@@ -46,6 +46,7 @@ export function MePage() {
           </div>
           <button type="button" className="link-btn row" style={{ gap: 4 }} onClick={() => setEditing(true)}><IconPencil />닉네임 수정</button>
         </div>
+        {user!.isAdmin && <AdminStatsCard />}
         <nav className="list-menu">
           <Link to="/me/posts"><span className="ic"><IconDoc /></span><span className="grow">내 모집글</span>{count !== null && <span className="count">{count}건</span>}<IconChevron /></Link>
           <Link to="/me/reviews"><span className="ic"><IconPencil size={20} /></span><span className="grow">내 후기</span>{reviewCount !== null && <span className="count">{reviewCount}건</span>}<IconChevron /></Link>
@@ -59,6 +60,54 @@ export function MePage() {
       </main>
       {editing && <NicknameSheet onClose={() => setEditing(false)} />}
     </>
+  );
+}
+
+/** 운영자에게만 보이는 방문 현황. 시연용 테스트 회원은 가입자·글·후기 수에서 빠진다. */
+function AdminStatsCard() {
+  const [s, setS] = useState<AdminStats | null>(null);
+  const [failed, setFailed] = useState(false);
+  const load = useCallback(() => {
+    setFailed(false);
+    api.adminStats().then(setS).catch(() => setFailed(true));
+  }, []);
+  useEffect(() => {
+    load();
+    const t = window.setInterval(load, 60_000);
+    return () => window.clearInterval(t);
+  }, [load]);
+  const max = Math.max(1, ...(s?.days ?? []).map((d) => d.visitors));
+  return (
+    <section className="card admin-stats" aria-label="방문 현황">
+      <div className="row" style={{ marginBottom: 10 }}>
+        <h3 className="grow">방문 현황 <span className="tag">운영자만</span></h3>
+        <button type="button" className="link-btn" style={{ padding: 4 }} onClick={load}>새로고침</button>
+      </div>
+      {failed ? <p className="muted small">불러오지 못했어요.</p> : !s ? <p className="muted small">불러오는 중…</p> : (
+        <>
+          <div className="stat-grid">
+            <div><b>{s.online}</b><span>지금 접속 중</span></div>
+            <div><b>{s.today.visitors}</b><span>오늘 방문자</span></div>
+            <div><b>{s.signups.total}</b><span>가입자{s.signups.today > 0 && ` (오늘 +${s.signups.today})`}</span></div>
+          </div>
+          <p className="muted small" style={{ marginTop: 8 }}>
+            오늘 로그인한 방문자 {s.today.members}명 · 이용자 모집글 {s.posts}건 · 후기 {s.reviews}건
+          </p>
+          {s.days.length > 1 && (
+            <ul className="stat-days">
+              {s.days.map((d) => (
+                <li key={d.day}>
+                  <span>{d.day.slice(5).replace('-', '.')}</span>
+                  <i style={{ width: `${(d.visitors / max) * 100}%` }} />
+                  <b>{d.visitors}</b>
+                </li>
+              ))}
+            </ul>
+          )}
+          <p className="muted small" style={{ marginTop: 8 }}>방문자는 브라우저 기준이라 같은 사람이 다른 기기로 오면 따로 세요. 시연용 테스트 회원은 빼고 세요.</p>
+        </>
+      )}
+    </section>
   );
 }
 

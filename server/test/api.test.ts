@@ -313,3 +313,24 @@ describe('메뉴 후기', () => {
     assert.equal((await call('GET', `/menus/${menuId}`)).json.summary.count, 0);
   });
 });
+
+describe('방문 집계', () => {
+  test('신호는 누구나, 숫자는 운영자만', async () => {
+    const vid = 'test-visitor-0000000001';
+    assert.equal((await call('POST', '/visits', null, { vid })).status, 204);
+    assert.equal((await call('POST', '/visits', null, { vid })).status, 204); // 같은 날 같은 브라우저는 한 명
+    assert.equal((await call('POST', '/visits', null, { vid: 'short' })).status, 400);
+    const a = await login('905');
+    await call('PATCH', '/me', a.cookie, { nickname: '방문자' });
+    assert.equal((await call('POST', '/visits', a.cookie, { vid: 'test-visitor-0000000002' })).status, 204);
+
+    assert.equal((await call('GET', '/admin/stats')).status, 401);
+    assert.equal((await call('GET', '/admin/stats', a.cookie)).status, 403);
+    const admin = await login('900');
+    const s = (await call('GET', '/admin/stats', admin.cookie)).json;
+    assert.equal(s.today.visitors, 2);
+    assert.equal(s.today.members, 1);
+    assert.equal(s.online, 2);
+    assert.ok(s.signups.total >= 1);
+  });
+});

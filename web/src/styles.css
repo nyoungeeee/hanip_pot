@@ -554,3 +554,15 @@ html, body { overflow-x: clip; }
 }
 .notice-badge:active { background: #3a342c; }
 .notice-modal .notice-unofficial { margin: 12px 0 0; font-size: 12px; color: var(--ink-3); }
+
+/* 운영자 방문 현황 */
+.admin-stats { margin-bottom: 18px; }
+.admin-stats h3 { font-size: 15px; font-weight: 700; }
+.stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.stat-grid > div { background: var(--muted-bg); border-radius: 10px; padding: 10px 8px; text-align: center; display: grid; gap: 2px; }
+.stat-grid b { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.stat-grid span { font-size: 11.5px; color: var(--ink-2); word-break: keep-all; }
+.stat-days { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 4px; }
+.stat-days li { display: grid; grid-template-columns: 40px 1fr 32px; align-items: center; gap: 8px; font-size: 12px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.stat-days i { display: block; height: 8px; border-radius: 4px; background: var(--brand); min-width: 2px; }
+.stat-days b { text-align: right; color: var(--ink); }

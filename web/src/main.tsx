@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation, useNavigationType } from 'react-router';
 import './styles.css';
 import { AppProvider, useApp } from './app-context';
+import { api } from './api';
 import { BottomNav, Header, NoticeModal } from './components/Layout';
 import { Empty, Spinner } from './components/ui';
 import MenuPage from './pages/MenuPage';
@@ -43,7 +44,38 @@ function Protected() {
 /** 화면별 스크롤 위치(history 항목 key 기준). 뒤로 가면 떠날 때 위치로 돌려놓는다. */
 const scrollByKey = new Map<string, number>();
 
+/** 방문 집계용 브라우저 id. 개인정보 없이 무작위 값만 쓴다. 저장이 막힌 브라우저는 이번 탭에서만 같은 값을 쓴다. */
+function visitorId(): string {
+  const make = () => crypto.randomUUID?.() ?? `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}-${Math.random().toString(36).slice(2)}`;
+  try {
+    const v = localStorage.getItem('hanippot-vid');
+    if (v) return v;
+    const n = make();
+    localStorage.setItem('hanippot-vid', n);
+    return n;
+  } catch {
+    return (visitorId.memo ??= make());
+  }
+}
+visitorId.memo = undefined as string | undefined;
+
+/** 화면이 보이는 동안 1분마다 방문 신호를 보낸다(운영자 방문 현황용) */
+function useVisitPing() {
+  useEffect(() => {
+    const vid = visitorId();
+    const send = () => { if (document.visibilityState === 'visible') api.ping(vid).catch(() => {}); };
+    send();
+    const timer = window.setInterval(send, 60_000);
+    document.addEventListener('visibilitychange', send);
+    return () => {
+      window.clearInterval(timer);
+      document.removeEventListener('visibilitychange', send);
+    };
+  }, []);
+}
+
 function Shell() {
+  useVisitPing();
   const location = useLocation();
   const navType = useNavigationType();
   const lastPath = useRef(location.pathname);

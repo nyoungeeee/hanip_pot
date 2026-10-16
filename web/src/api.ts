@@ -118,6 +118,17 @@ export class ApiError extends Error {
   }
 }
 
+/** 운영자 화면의 방문 현황 */
+export interface AdminStats {
+  day: string;
+  online: number;
+  today: { visitors: number; members: number };
+  days: { day: string; visitors: number }[];
+  signups: { total: number; today: number };
+  posts: number;
+  reviews: number;
+}
+
 async function request<T>(method: string, path: string, body?: unknown): Promise<T> {
   const init: RequestInit = { method, credentials: 'same-origin', headers: {} };
   const headers = init.headers as Record<string, string>;
@@ -165,6 +176,8 @@ export const api = {
   deleteReview: (id: number) => request<{ ok: true }>('DELETE', `/me/reviews/${id}`),
   hideReview: (id: number, reason: HideReason) => request<{ ok: true }>('POST', `/admin/reviews/${id}/hide`, { reason }),
   unhideReview: (id: number) => request<{ ok: true }>('POST', `/admin/reviews/${id}/unhide`),
+  ping: (vid: string) => request<unknown>('POST', '/visits', { vid }),
+  adminStats: () => request<AdminStats>('GET', '/admin/stats'),
   upload: (file: File) => {
     const fd = new FormData();
     fd.append('file', file);

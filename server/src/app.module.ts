@@ -13,6 +13,8 @@ import { MeController } from './me/me.controller';
 import { UploadsController } from './uploads/uploads.controller';
 import { ReviewsService } from './reviews/reviews.service';
 import { ReviewsController } from './reviews/reviews.controller';
+import { VisitsService } from './visits/visits.service';
+import { VisitsController } from './visits/visits.controller';
 
 @Controller('health')
 class HealthController {
@@ -26,7 +28,7 @@ class HealthController {
 }
 
 @Module({
-  controllers: [HealthController, AuthController, CatalogController, PostsController, MeController, UploadsController, ReviewsController],
+  controllers: [HealthController, AuthController, CatalogController, PostsController, MeController, UploadsController, ReviewsController, VisitsController],
   providers: [
     { provide: CONFIG, useFactory: loadConfig },
     DatabaseService,
@@ -37,6 +39,7 @@ class HealthController {
     AdminGuard,
     PostsService,
     ReviewsService,
+    VisitsService,
   ],
 })
 export class AppModule {}

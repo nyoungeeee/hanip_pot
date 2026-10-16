@@ -112,4 +112,16 @@ export const MIGRATIONS: string[] = [
   -- 한 사람이 한 메뉴에 남은 후기는 하나. 지우면 다시 쓸 수 있다.
   CREATE UNIQUE INDEX reviews_one_per_menu ON reviews(menu_id, author_id) WHERE deleted_at IS NULL;
   `,
+  // 간단한 방문 집계: 브라우저마다 만든 무작위 id의 해시를 날짜(한국 시간)별로 하나씩. IP·기기 정보는 남기지 않는다.
+  `
+  CREATE TABLE visits (
+    day TEXT NOT NULL,
+    visitor TEXT NOT NULL,
+    user_id INTEGER REFERENCES users(id),
+    first_at TEXT NOT NULL,
+    last_at TEXT NOT NULL,
+    PRIMARY KEY (day, visitor)
+  );
+  CREATE INDEX visits_last ON visits(last_at);
+  `,
 ];
