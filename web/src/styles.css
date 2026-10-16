@@ -1,9 +1,8 @@
-/* 본문: IBM Plex Sans KR, 제목(로고·업체명·화면 제목): Black Han Sans. 둘 다 글자 범위별로 쪼갠 woff2라 쓰는 글자만 받는다. */
+/* 글꼴: IBM Plex Sans KR 하나로 통일. 글자 범위별로 쪼갠 woff2라 쓰는 글자만 받는다. */
 @import '@fontsource/ibm-plex-sans-kr/400.css';
 @import '@fontsource/ibm-plex-sans-kr/500.css';
 @import '@fontsource/ibm-plex-sans-kr/600.css';
 @import '@fontsource/ibm-plex-sans-kr/700.css';
-@import '@fontsource/black-han-sans/400.css';
 
 :root {
   /* 인뮤페 포스터: 노랑·하늘 줄무늬, 굵은 검정 외곽선, 파란 업체 바, 분홍 메뉴명 */
@@ -28,7 +27,6 @@
   --pop-sm: 2px 2px 0 var(--ink);
   --stripes: repeating-linear-gradient(-45deg, var(--yellow) 0 10px, var(--sky) 10px 20px);
   --font-body: 'IBM Plex Sans KR', -apple-system, BlinkMacSystemFont, system-ui, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
-  --font-display: 'Black Han Sans', var(--font-body);
   --muted-bg: #f3eed6;
   --muted-ink: #7d7663;
   --kakao: #fee500;
@@ -546,15 +544,3 @@ h1, h2, h3, p { margin: 0; }
 .detail-menu { text-decoration: none; color: inherit; }
 .detail-menu-go { display: grid; place-items: center; flex-shrink: 0; color: var(--ink-3); }
 
-/* ---- 제목 글꼴(Black Han Sans, 굵기 하나뿐이라 400으로 둬서 가짜 굵게를 막는다) ---- */
-.logo span, .header .title, .vendor-head h3, .event-strip strong, .other-hint strong,
-.review-summary h2, .section-title, .menu-hero-name, .empty-state strong, .done-time {
-  font-family: var(--font-display); font-weight: 400; letter-spacing: 0; -webkit-text-stroke: 0;
-}
-.logo span { font-size: 23px; }
-.header .title { font-size: 18px; }
-.vendor-head h3 { font-size: 17px; }
-.event-strip strong { font-size: 15px; }
-.other-hint strong { font-size: 15.5px; }
-.review-summary h2 { font-size: 20px; }
-.menu-hero-name { font-size: 21px; }
