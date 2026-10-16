@@ -21,7 +21,8 @@
       "menus": [
         {"slug": "sinbaram-gopchang-s", "name": "곱창 (소)", "price": 12000},
         {"slug": "sinbaram-gopchang-l", "name": "곱창 (대)", "price": 20000},
-        {"slug": "sinbaram-gopchang-rice", "name": "곱창 덮밥", "price": null}
+        {"slug": "sinbaram-gopchang-rice-s", "name": "곱창 덮밥 (소)", "price": 12000},
+        {"slug": "sinbaram-gopchang-rice-l", "name": "곱창 덮밥 (대)", "price": 20000}
       ] },
     { "slug": "paradise", "name": "파라다이스", "zone": "푸드트럭", "image": "paradise.webp",
       "menus": [
