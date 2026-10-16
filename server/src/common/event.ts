@@ -1,5 +1,5 @@
 // 행사 기간과 시간 변환. 서울은 서머타임이 없어 +09:00 고정으로 계산한다.
-export const EVENT_DAYS = ['2026-10-02', '2026-10-03', '2026-10-04'] as const;
+export const EVENT_DAYS = ['2026-10-17', '2026-10-18'] as const;
 export type EventDay = (typeof EVENT_DAYS)[number];
 
 const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'];

@@ -1,7 +1,7 @@
 import { Link, NavLink, useLocation, useNavigate } from 'react-router';
 import { useApp } from '../app-context';
 import { NOTICE } from '../copy';
-import { IconBack, IconClock, IconMenu, IconPlus, IconRefresh, IconUser } from './Icons';
+import { IconBack, IconChevron, IconClock, IconMenu, IconPlus, IconRefresh, IconUser } from './Icons';
 
 /** 화면 맨 위 공지. 같은 문구를 두 번 이어 붙여 -50%만큼 흘리면 끊김 없이 반복된다. */
 export function NoticeBanner() {
@@ -13,6 +13,20 @@ export function NoticeBanner() {
         <span aria-hidden="true">{NOTICE}</span>
       </div>
     </div>
+  );
+}
+
+/** 시간별·메뉴별 상단 행사 띠. 누르면 이용 안내(포스터)로 간다. */
+export function EventStrip() {
+  return (
+    <Link to="/guide" className="event-strip">
+      <img src="/inmufe/truck.webp" alt="" width={44} height={44} />
+      <div>
+        <strong>2026 경기인디뮤직페스티벌 푸드트럭</strong>
+        <small>10.17 토 – 10.18 일 · 수원 서호 잔디광장</small>
+      </div>
+      <span className="go"><IconChevron size={18} /></span>
+    </Link>
   );
 }
 
@@ -28,7 +42,7 @@ export function Header({ back, title, right }: { back?: boolean | string; title?
       {back && <button type="button" className="back" aria-label="뒤로" onClick={goBack}><IconBack /></button>}
       {title ? <h1 className="title">{title}</h1> : (
         <>
-          <Link to="/" className="logo"><img src="/logo-84.png" alt="" width={28} height={28} />한입팟<small>(부락편)</small></Link>
+          <Link to="/" className="logo" aria-label="INMUFE 한입팟"><img src="/inmufe/logo.webp" alt="" width={77} height={34} /><span>한입팟</span></Link>
           <button type="button" className="refresh" aria-label="새로고침" onClick={() => location.reload()}><IconRefresh /></button>
         </>
       )}

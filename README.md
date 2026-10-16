@@ -1,6 +1,6 @@
-# 한입팟(부락편)
+# INMUFE 한입팟 (구 한입팟 부락편)
 
-부산락페(2026-10-02~04)에서 F&B 메뉴를 나눠 먹을 모임을 찾는 모바일 웹. 요구사항은 [REQUIREMENTS.md](REQUIREMENTS.md), 인수 이미지는 `docs/handoff/`.
+2026 경기인디뮤직페스티벌(인뮤페, 2026-10-17~18, 수원 서호 잔디광장) 푸드트럭 메뉴를 나눠 먹을 모임을 찾는 모바일 웹. 부락편(2026-10-02~04) 데이터는 서버 `~/hanippot/archive/burak-final/`에 보관. 요구사항은 [REQUIREMENTS.md](REQUIREMENTS.md), 인수 이미지는 `docs/handoff/`.
 
 ```
 web/      React + Vite SPA (Pretendard, 390px 기준)

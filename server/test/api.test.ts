@@ -12,7 +12,7 @@ const BASE = `http://127.0.0.1:${PORT}`;
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'hanippot-test-'));
 let server: ChildProcess;
 
-const DAY = '2026-10-03';
+const DAY = '2026-10-18';
 const GV = '2026-09-30';
 
 function cookieFrom(res: Response, name: string): string | null {
@@ -51,7 +51,7 @@ let menuIds: Record<string, number> = {};
 function postBody(over: Record<string, unknown> = {}) {
   return {
     day: DAY, time: '13:00', targetPeople: 4, title: '같이 먹어요', description: '나눠 먹어요',
-    openChatUrl: 'https://open.kakao.com/o/gAbcdef1', menuIds: [menuIds['삼진어묵탕']], customMenus: [],
+    openChatUrl: 'https://open.kakao.com/o/gAbcdef1', menuIds: [menuIds['떡볶이']], customMenus: [],
     agreedGuideline: true, guidelineVersion: GV, ...over,
   };
 }
@@ -135,18 +135,18 @@ describe('모집글', () => {
   });
 
   test('두 업체 메뉴를 고른 글은 각 메뉴 아래에 모두, 타임라인에는 한 번만', async () => {
-    const r = await call('POST', '/posts', owner, postBody({ menuIds: [menuIds['삼진어묵탕'], menuIds['장호밀면']], title: '어묵탕+밀면' }));
+    const r = await call('POST', '/posts', owner, postBody({ menuIds: [menuIds['떡볶이'], menuIds['타코야끼']], title: '떡볶이+타코야끼' }));
     assert.equal(r.status, 201);
     multiId = r.json.post.id;
-    const a = await call('GET', `/posts?day=${DAY}&menuId=${menuIds['삼진어묵탕']}`);
-    const b = await call('GET', `/posts?day=${DAY}&menuId=${menuIds['장호밀면']}`);
+    const a = await call('GET', `/posts?day=${DAY}&menuId=${menuIds['떡볶이']}`);
+    const b = await call('GET', `/posts?day=${DAY}&menuId=${menuIds['타코야끼']}`);
     assert.ok(a.json.posts.some((p: { id: number }) => p.id === multiId));
     assert.ok(b.json.posts.some((p: { id: number }) => p.id === multiId));
     const tl = await call('GET', `/posts/timeline?day=${DAY}`);
     const ids = tl.json.groups.flatMap((g: { posts: { id: number }[] }) => g.posts.map((p) => p.id));
     assert.equal(ids.filter((id: number) => id === multiId).length, 1);
     const v = await call('GET', `/vendors?day=${DAY}`);
-    const menu = v.json.vendors.flatMap((x: { menus: unknown[] }) => x.menus).find((m: { id: number }) => m.id === menuIds['장호밀면']);
+    const menu = v.json.vendors.flatMap((x: { menus: unknown[] }) => x.menus).find((m: { id: number }) => m.id === menuIds['타코야끼']);
     assert.equal(menu.openCount, 1);
   });
 
@@ -184,7 +184,7 @@ describe('모집글', () => {
       assert.equal(d.openChatUrl, null);
     }
     assert.equal((await call('GET', `/posts/${expired}`, other)).json.post.closeReason, 'EXPIRED');
-    const list = (await call('GET', `/posts?day=${DAY}&menuId=${menuIds['삼진어묵탕']}`)).json.posts as { id: number; status: string }[];
+    const list = (await call('GET', `/posts?day=${DAY}&menuId=${menuIds['떡볶이']}`)).json.posts as { id: number; status: string }[];
     const firstClosed = list.findIndex((p) => p.status !== 'OPEN');
     assert.ok(list.slice(firstClosed).every((p) => p.status !== 'OPEN'), '모집중이 먼저');
     assert.ok(list.findIndex((p) => p.id === open) < firstClosed);
@@ -208,14 +208,14 @@ describe('모집글', () => {
   test('기타 메뉴: 공식 업체명이면 그 업체 아래, 아니면 새 업체로 노출', async () => {
     const r = await call('POST', '/posts', owner, postBody({
       menuIds: [], time: '17:00',
-      customMenus: [{ vendorName: '삼진어묵', name: '어묵고로케', price: 3000 }, { vendorName: '새로운포차', name: '포차오뎅꼬치', price: null }],
+      customMenus: [{ vendorName: '베리분식', name: '떡튀김', price: 3000 }, { vendorName: '새로운포차', name: '포차오뎅꼬치', price: null }],
     }));
     assert.equal(r.status, 201);
     const vendors = (await call('GET', `/vendors?day=${DAY}`)).json.vendors as { name: string; isOfficial: boolean; menus: { name: string; image: string | null }[] }[];
-    assert.ok(vendors.find((v) => v.name === '삼진어묵')!.menus.some((m) => m.name === '어묵고로케' && m.image === null));
+    assert.ok(vendors.find((v) => v.name === '베리분식')!.menus.some((m) => m.name === '떡튀김' && m.image === null));
     assert.equal(vendors.find((v) => v.name === '새로운포차')?.isOfficial, false);
     // 다른 날에는 기타 메뉴가 보이지 않는다
-    const other = (await call('GET', '/vendors?day=2026-10-02')).text;
+    const other = (await call('GET', '/vendors?day=2026-10-17')).text;
     assert.ok(!other.includes('포차오뎅꼬치'));
   });
 

@@ -85,8 +85,11 @@ export function GuidePage() {
         <div className="stack" style={{ fontSize: 14.5 }}>
           <section className="card">
             <h3 style={{ fontSize: 15.5, fontWeight: 600, marginBottom: 6 }}>한입팟은 이런 곳이에요</h3>
-            <p className="muted">부산락페에 혼자 온 솔플러가 F&B 메뉴를 이것저것 맛볼 수 있도록, 같은 메뉴를 원하는 시간에 함께 나눠 먹을 사람을 찾는 곳이에요.</p>
+            <p className="muted">인뮤페(2026 경기인디뮤직페스티벌)에 혼자 온 솔플러가 푸드트럭 메뉴를 이것저것 맛볼 수 있도록, 같은 메뉴를 원하는 시간에 함께 나눠 먹을 사람을 찾는 곳이에요.</p>
           </section>
+          <figure className="poster" style={{ margin: 0 }}>
+            <img src="/inmufe/menu-poster.webp" alt="인뮤페 푸드트럭 메뉴 안내 포스터" width={800} height={999} loading="lazy" />
+          </figure>
           <section className="card">
             <h3 style={{ fontSize: 15.5, fontWeight: 600, marginBottom: 6 }}>이용 방법</h3>
             <ol className="muted" style={{ margin: 0, paddingLeft: 18 }}>

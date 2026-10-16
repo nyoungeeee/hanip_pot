@@ -16,4 +16,4 @@ export const COPY = {
 export const CONTACT_URL = 'https://open.kakao.com/o/g6H5a8Pi';
 
 /** 상단 흐르는 공지. 비우면('') 배너가 사라진다. */
-export const NOTICE = '부산락페가 끝나 한입팟(부락편) 운영을 마쳤어요. 함께 나눠 먹어주셔서 감사합니다! 문의는 "내정보 > 운영자에게 문의"로 남겨주세요.';
+export const NOTICE = 'INMUFE 한입팟 오픈! 10.17(토)–18(일) 수원 서호 잔디광장 푸드트럭 메뉴, 혼자 왔다면 함께 나눠 먹을 팟을 찾아보세요.';
